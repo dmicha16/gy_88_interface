@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 2.8.3)
 project(imu_interface)
 
@@ -10,7 +11,7 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
-  message_generation  
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -125,7 +126,7 @@ include_directories(
 
 ## Declare a C++ library
 add_library(
-  ${PROJECT_NAME} src/gy_88_lib.cpp
+  gy_88_lib src/gy_88_lib.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -150,7 +151,7 @@ add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
-  ${PROJECT_NAME}
+  gy_88_lib
   wiringPi
   pthread
   m

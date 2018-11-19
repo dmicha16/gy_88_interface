@@ -1,4 +1,4 @@
-#include "gy_88_lib.h"
+#include "imu_interface/gy_88_lib.h"
 #include "ros/ros.h"
 #include <iostream>
 #include "imu_interface/Gy88Data.h"

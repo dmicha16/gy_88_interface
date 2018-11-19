@@ -1,4 +1,4 @@
-#include "gy_88_lib.h"
+#include "imu_interface/gy_88_lib.h"
 
 // ******************************** CONSTRUCTORS-DESTRUCTORS *******************************
 
