@@ -2,49 +2,40 @@
 
 // ******************************** CONSTRUCTORS-DESTRUCTORS *******************************
 
-Gy88Interface::Gy88Interface() {}
+Gy88Interface::Gy88Interface()
+{
+  wiringPiSetup();
+}
 
 Gy88Interface::~Gy88Interface() {}
 
 // **************************************** PUBLIC *****************************************
 
-bool Gy88Interface::connect_to_MPU6050(const int slave_addr, const int pwr_mgmt_addr)
+bool Gy88Interface::connect_to_MPU6050()
 {
-  MPU6050_connection_ = wiringPiI2CSetup(slave_addr);
-    if (MPU6050_connection_ == -1)
+  MPU6050_fd_ = wiringPiI2CSetup(MPU6050_SLAVE_ADDR);
+    if (MPU6050_fd_ == -1)
         return false;
 
-  wiringPiI2CReadReg8 (MPU6050_connection_, pwr_mgmt_addr);
-  wiringPiI2CWriteReg16(MPU6050_connection_, pwr_mgmt_addr, 0);
+  wiringPiI2CWriteReg16(MPU6050_fd_, MPU6050_PWR_MGMNT_ADDR, 0);
 
   return true;
 }
 
-bool Gy88Interface::connect_to_HMC5883L(const int slave_addr, const int pwr_mgmt_addr)
+bool Gy88Interface::connect_to_HMC5883L()
 {
-  HMC5883L_connection_ = wiringPiI2CSetup(slave_addr);
-    if (HMC5883L_connection_ == -1)
+  HMC5883L_fd_ = wiringPiI2CSetup(HMC5883L_ADDRESS);
+    if (HMC5883L_fd_ == -1)
         return false;
 
-  wiringPiI2CReadReg8 (HMC5883L_connection_, pwr_mgmt_addr);
-  wiringPiI2CWriteReg16(HMC5883L_connection_, pwr_mgmt_addr, 0);
+  // wiringPiI2CWriteReg16(HMC5883L_fd_, pwr_mgmt_addr, 0);
 
   return true;
 }
 
-magnetometer Gy88Interface::get_magnetometer()
+MPU6050 Gy88Interface::get_MPU6050()
 {
-  return compass_;
-}
-
-accelerometer Gy88Interface::get_accelerometer()
-{
-  return accel_;
-}
-
-gyroscope Gy88Interface::get_gyroscope()
-{
-  return gyro_;
+  return MPU6050_;
 }
 
 bool Gy88Interface::read_bus(const int select_chip)
@@ -52,13 +43,13 @@ bool Gy88Interface::read_bus(const int select_chip)
 
   switch (select_chip)
   {
-    case MPU6050:
+    case MPU6050_CHIP:
       read_MPU6059_accel_();
       read_MPU6059_gyro_();
       break;
 
-    case HMC5883L:
-      read_HMC5883L_compass_();
+    case HMC5883L_CHIP:
+      // read_HMC5883L_compass_();
       break;
   }
 }
@@ -67,27 +58,52 @@ bool Gy88Interface::read_bus(const int select_chip)
 
 void Gy88Interface::read_MPU6059_accel_()
 {
-  accel_.timestamp = get_millis_since_epoch_();
-  accel_.x = wiringPiI2CReadReg8(MPU6050_connection_, ACCEL_X);
-  accel_.y = wiringPiI2CReadReg8(MPU6050_connection_, ACCEL_Y);
-  accel_.z = wiringPiI2CReadReg8(MPU6050_connection_, ACCEL_Z);
+
+  short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_H);
+  short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_L);
+
+  MPU6050_.accel_x = (msb << 8 | lsb) / MPU6050_A_SCALE;
+
+  msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_H);
+  lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_L);
+
+  MPU6050_.accel_y = (msb << 8 | lsb) / MPU6050_A_SCALE;
+
+  msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_H);
+  lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_L);
+
+  MPU6050_.accel_z = (msb << 8 | lsb) / MPU6050_A_SCALE;
+
+  MPU6050_.timestamp = get_millis_since_epoch_();
 }
 
 void Gy88Interface::read_MPU6059_gyro_()
 {
-  gyro_.timestamp = get_millis_since_epoch_();
-  gyro_.x = wiringPiI2CReadReg8(MPU6050_connection_, GYRO_X);
-  gyro_.y = wiringPiI2CReadReg8(MPU6050_connection_, GYRO_Y);
-  gyro_.z = wiringPiI2CReadReg8(MPU6050_connection_, GYRO_Z);
+  short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_XOUT_H);
+  short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_XOUT_L);
+
+  MPU6050_.gyro_x = (msb << 8 | lsb) / MPU6050_ANG_SCALE;
+
+  msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_YOUT_H);
+  lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_YOUT_L);
+
+  MPU6050_.gyro_y = (msb << 8 | lsb) / MPU6050_ANG_SCALE;
+
+  msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_H);
+  lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_L);
+
+  MPU6050_.gyro_z = (msb << 8 | lsb) / MPU6050_ANG_SCALE;
+
+  MPU6050_.timestamp = get_millis_since_epoch_();
 }
 
-void Gy88Interface::read_HMC5883L_compass_()
-{
-  compass_.timestamp = get_millis_since_epoch_();
-  compass_.x = wiringPiI2CReadReg8(HMC5883L_connection_, COMPASS_X);
-  compass_.y = wiringPiI2CReadReg8(HMC5883L_connection_, COMPASS_Y);
-  compass_.z = wiringPiI2CReadReg8(HMC5883L_connection_, COMPASS_Z);
-}
+// void Gy88Interface::read_HMC5883L_compass_()
+// {
+//   compass_.timestamp = get_millis_since_epoch_();
+//   compass_.x = wiringPiI2CReadReg8(HMC5883L_fd_, COMPASS_X);
+//   compass_.y = wiringPiI2CReadReg8(HMC5883L_fd_, COMPASS_Y);
+//   compass_.z = wiringPiI2CReadReg8(HMC5883L_fd_, COMPASS_Z);
+// }
 
 unsigned long Gy88Interface::get_millis_since_epoch_()
 {
