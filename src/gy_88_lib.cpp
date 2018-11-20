@@ -28,28 +28,33 @@ bool Gy88Interface::connect_to_HMC5883L()
     if (HMC5883L_fd_ == -1)
         return false;
 
-  // wiringPiI2CWriteReg16(HMC5883L_fd_, pwr_mgmt_addr, 0);
+  wiringPiI2CWriteReg16(HMC5883L_fd_, HMC5883L_REG_MODE, HMC5883L_MODE_CONTINUOUS);
 
   return true;
 }
 
-MPU6050 Gy88Interface::get_MPU6050()
+ChipMPU6050 Gy88Interface::get_MPU5060_data()
 {
-  return MPU6050_;
+  return chip_mpu6050_;
 }
 
-bool Gy88Interface::read_bus(const int select_chip, float accel_resolution)
+ChipHMC5883L Gy88Interface::get_HMC5883L_data()
+{
+  return chip_hmc5883l_;
+}
+
+bool Gy88Interface::read_bus(const int select_chip, float accel_resolution, float ang_scale)
 {
 
   switch (select_chip)
   {
     case MPU6050_CHIP:
       read_MPU6059_accel_(accel_resolution);
-      read_MPU6059_gyro_();
+      read_MPU6059_gyro_(ang_scale);
       break;
 
     case HMC5883L_CHIP:
-      // read_HMC5883L_compass_();
+      read_HMC5883L_compass_();
       break;
   }
 }
@@ -62,52 +67,75 @@ void Gy88Interface::read_MPU6059_accel_(float accel_resolution)
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_L);
 
-  MPU6050_.accel_x = (msb << 8 | lsb) / accel_resolution;
+  chip_mpu6050_.accel_x = (msb << 8 | lsb) / accel_resolution;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_L);
 
-  MPU6050_.accel_y = (msb << 8 | lsb) / accel_resolution;
+  chip_mpu6050_.accel_y = (msb << 8 | lsb) / accel_resolution;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_L);
 
-  MPU6050_.accel_z = (msb << 8 | lsb) / accel_resolution;
+  chip_mpu6050_.accel_z = (msb << 8 | lsb) / accel_resolution;
 
-  MPU6050_.timestamp = get_millis_since_epoch_();
+  chip_mpu6050_.timestamp = get_millis_since_epoch_();
 }
 
-void Gy88Interface::read_MPU6059_gyro_()
+void Gy88Interface::read_MPU6059_gyro_(float ang_scale)
 {
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_XOUT_L);
 
-  MPU6050_.gyro_x = (msb << 8 | lsb) / MPU6050_ANG_SCALE;
+  chip_mpu6050_.gyro_x = (msb << 8 | lsb) / ang_scale;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_YOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_YOUT_L);
 
-  MPU6050_.gyro_y = (msb << 8 | lsb) / MPU6050_ANG_SCALE;
+  chip_mpu6050_.gyro_y = (msb << 8 | lsb) / ang_scale;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_L);
 
-  MPU6050_.gyro_z = (msb << 8 | lsb) / MPU6050_ANG_SCALE;
+  chip_mpu6050_.gyro_z = (msb << 8 | lsb) / ang_scale;
 
-  MPU6050_.timestamp = get_millis_since_epoch_();
+  chip_mpu6050_.timestamp = get_millis_since_epoch_();
 }
 
-// void Gy88Interface::read_HMC5883L_compass_()
-// {
-//   compass_.timestamp = get_millis_since_epoch_();
-//   compass_.x = wiringPiI2CReadReg8(HMC5883L_fd_, COMPASS_X);
-//   compass_.y = wiringPiI2CReadReg8(HMC5883L_fd_, COMPASS_Y);
-//   compass_.z = wiringPiI2CReadReg8(HMC5883L_fd_, COMPASS_Z);
-// }
-
-unsigned long Gy88Interface::get_millis_since_epoch_()
+void Gy88Interface::read_HMC5883L_compass_()
 {
-  unsigned long millis_since_epoch =
+  short msb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_MSB_X);
+  short lsb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_LSB_X);
+
+  chip_hmc5883l_.compass_x = msb << 8 | lsb;
+
+  msb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_MSB_Y);
+  lsb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_LSB_Y);
+
+  chip_hmc5883l_.compass_y = msb << 8 | lsb;
+
+  msb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_MSB_Z);
+  lsb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_LSB_Z);
+
+  chip_hmc5883l_.compass_z = msb << 8 | lsb;
+
+  chip_hmc5883l_.compass_angle = calculate_compass_angle_();
+
+  chip_hmc5883l_.timestamp = get_millis_since_epoch_();
+}
+
+float Gy88Interface::calculate_compass_angle_()
+{
+  float angle;
+  angle = atan2(chip_hmc5883l_.compass_y, chip_hmc5883l_.compass_x) \
+   * (180 / PI) + 180;
+
+  return angle;
+}
+
+ulong_t Gy88Interface::get_millis_since_epoch_()
+{
+  ulong_t millis_since_epoch =
     std::chrono::duration_cast<std::chrono::milliseconds>
         (std::chrono::system_clock::now().time_since_epoch()).count();
 

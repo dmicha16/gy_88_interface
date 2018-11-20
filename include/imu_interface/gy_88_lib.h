@@ -13,7 +13,7 @@
 #include <wiringPiI2C.h>
 #include <chrono>
 
-// **************************************** MPU6050 *****************************************
+// **************************************** ChipMPU6050 *****************************************
 
 #define MPU6050_SLAVE_ADDR          0x68
 #define MPU6050_PWR_MGMNT_ADDR      0x6B
@@ -64,23 +64,15 @@
 #define HMC5883L_MODE_CONTINUOUS    0x00
 #define HMC5883L_MODE_SINGLE        0x01
 
-#define GYRO_X 0x43
-#define GYRO_Y 0x45
-#define GYRO_Z 0x47
-
-#define ACCEL_X 0x3b
-#define ACCEL_Y 0x3d
-#define ACCEL_Z 0x3f
-
-#define COMPASS_X 0x04
-#define COMPASS_Y 0x08
-#define COMPASS_Z 0x06
-
-#define MPU6050_CHIP 0
+#define MPU6050_CHIP  0
 #define HMC5883L_CHIP 1
-#define BMP085_CHIP 2
+#define BMP085_CHIP   2
 
-struct MPU6050
+#define PI            3.141592
+
+typedef unsigned long ulong_t;
+
+struct ChipMPU6050
 {
   float accel_x;
   float accel_y;
@@ -95,7 +87,7 @@ struct MPU6050
   unsigned long timestamp;
 };
 
-struct HMC5883L
+struct ChipHMC5883L
 {
   float compass_x;
   float compass_y;
@@ -123,13 +115,10 @@ class Gy88Interface
     bool connect_to_HMC5883L();
     bool connect_to_BMP085();
 
-    // bool connect_to_bus(char chip_1);
-    // bool connect_to_bus(char chip_1, char chip_2);
-    // bool connect_to_bus(char chip_1, char chip_2, char chip_3);
+    ChipMPU6050 get_MPU5060_data();
+    ChipHMC5883L get_HMC5883L_data();
 
-    MPU6050 get_MPU6050();
-
-    bool read_bus(const int select_chip, float accel_resolution);
+    bool read_bus(const int select_chip, float accel_resolution, float ang_scale);
 
   private:
 
@@ -139,8 +128,11 @@ class Gy88Interface
     int HMC5883L_fd_;
 
     void read_MPU6059_accel_(float accel_resolution);
-    void read_MPU6059_gyro_();
+    void read_MPU6059_gyro_(float ang_scale);
     void read_HMC5883L_compass_();
 
-    MPU6050 MPU6050_;
+    float calculate_compass_angle_();
+
+    ChipMPU6050 chip_mpu6050_;
+    ChipHMC5883L chip_hmc5883l_;
 };

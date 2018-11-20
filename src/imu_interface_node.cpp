@@ -4,17 +4,24 @@
 #include "imu_interface/Gy88Data.h"
 
 
-void print_gy_88(MPU6050 MPU6050_)
+void print_gy_88(ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l)
 {
-  std::cout << std::fixed;
-  std::cout << std::setprecision(15);
-  std::cout << "ACCEL X:" << MPU6050_.accel_x << " -- " << \
-               "ACCEL Y:" << MPU6050_.accel_y << " -- " << \
-               "ACCEL Z:" << MPU6050_.accel_z << std::endl;
+  // std::cout << std::fixed;
+  // std::cout << std::setprecision(5);
+  // std::cout << "ACCEL X:" << chip_mpu6050.gyro_x << " -- " << \
+  //              "ACCEL Y:" << chip_mpu6050.gyro_y << " -- " << \
+  //              "ACCEL Z:" << chip_mpu6050.gyro_z << std::endl;
 
-//   ROS_INFO("%d", MPU6050_.accel_x);
-//   ROS_INFO("%d", MPU6050_.accel_y);
-//   ROS_INFO("%d", MPU6050_.accel_z);
+  std::cout << std::fixed;
+  std::cout << std::setprecision(5);
+  std::cout << "COMPASS X:" << chip_hmc5883l.compass_x << " -- " << \
+               "COMPASS Y:" << chip_hmc5883l.compass_y << " -- " << \
+               "COMPASS Z:" << chip_hmc5883l.compass_z << " -- " << \
+               "COMPASS A:" << chip_hmc5883l.compass_angle << std::endl;
+
+//   ROS_INFO("%d", chip_mpu6050.accel_x);
+//   ROS_INFO("%d", chip_mpu6050.accel_y);
+//   ROS_INFO("%d", chip_mpu6050.accel_z);
 
   // ROS_INFO("%f", gyro.x);
   // ROS_INFO("%f", gyro.y);
@@ -25,9 +32,9 @@ void print_gy_88(MPU6050 MPU6050_)
   // ROS_INFO("%f", compass.z);
 }
 
-unsigned long get_millis_since_epoch()
+ulong_t get_millis_since_epoch()
 {
-  unsigned long millis_since_epoch =
+  ulong_t millis_since_epoch =
     std::chrono::duration_cast<std::chrono::milliseconds>
         (std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -36,18 +43,18 @@ unsigned long get_millis_since_epoch()
 
 void test_polling_speed(int test_num, Gy88Interface imu)
 {
-  unsigned long avg_speed = 0;
+  ulong_t avg_speed = 0;
   for(size_t i = 0; i < test_num; i++)
   {
-    unsigned long start_time = get_millis_since_epoch();
+    ulong_t start_time = get_millis_since_epoch();
 
     for(size_t i = 0; i < 1001; i++)
     {
-      imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_2G);
-      MPU6050 MPU6050_ = imu.get_MPU6050();
+      imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_2G, MPU6050_ANG_SCALE);
+      ChipMPU6050 chip_mpu6050 = imu.get_MPU5060_data();
     }
 
-    unsigned long end_time = get_millis_since_epoch();
+    ulong_t end_time = get_millis_since_epoch();
 
     avg_speed += (end_time - start_time);
 
@@ -63,14 +70,14 @@ int main(int argc, char **argv)
   Gy88Interface imu;
 
   if(!imu.connect_to_MPU6050())
-    ROS_INFO("%s", "Couldn't connect to I2C bus!");
+    ROS_INFO("%s", "Couldn't connect to MPU650's I2C bus!");
   else
     ROS_INFO("%s", "Connected to I2C bus!");
 
-  // if(!imu.connect_to_HMC5883L(slave_addr_HMC5883L, pwr_mgmt_addr_HMC5883L))
-  //   ROS_INFO("%s", "Couldn't connect to I2C bus!");
-  // else
-  //   ROS_INFO("%s", "Connected to I2C bus!");
+  if(!imu.connect_to_HMC5883L())
+    ROS_INFO("%s", "Couldn't connect to I2C bus!");
+  else
+    ROS_INFO("%s", "Connected to HMC5883L's I2C bus!");
 
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;
@@ -81,9 +88,10 @@ int main(int argc, char **argv)
   // test_polling_speed(5, imu);
   while(ros::ok())
   {
-    imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_2G);
-    // imu.read_bus(HMC5883L);
-    MPU6050 MPU6050_ = imu.get_MPU6050();
+    imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_2G, MPU6050_ANG_SCALE);
+    imu.read_bus(HMC5883L_CHIP, MPU6050_A_SCALE_2G, MPU6050_ANG_SCALE);
+    ChipMPU6050 chip_mpu6050 = imu.get_MPU5060_data();
+    ChipHMC5883L chip_hmc5883l = imu.get_HMC5883L_data();
 
     // gy88_data.accel_x = accel.x;
     // gy88_data.accel_y = accel.y;
@@ -98,7 +106,7 @@ int main(int argc, char **argv)
     // gy88_data.compass_z = compass.z;
 
     // publisher.publish(gy88_data);
-    print_gy_88(MPU6050_);
+    print_gy_88(chip_mpu6050, chip_hmc5883l);
     ros::spinOnce();
     // loop_rate.sleep();
   }
