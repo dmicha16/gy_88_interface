@@ -7,7 +7,7 @@
 void print_gy_88(MPU6050 MPU6050_)
 {
   std::cout << std::fixed;
-  std::cout << std::setprecision(6);
+  std::cout << std::setprecision(15);
   std::cout << "ACCEL X:" << MPU6050_.accel_x << " -- " << \
                "ACCEL Y:" << MPU6050_.accel_y << " -- " << \
                "ACCEL Z:" << MPU6050_.accel_z << std::endl;
@@ -23,6 +23,39 @@ void print_gy_88(MPU6050 MPU6050_)
   // ROS_INFO("%f", compass.x);
   // ROS_INFO("%f", compass.y);
   // ROS_INFO("%f", compass.z);
+}
+
+unsigned long get_millis_since_epoch()
+{
+  unsigned long millis_since_epoch =
+    std::chrono::duration_cast<std::chrono::milliseconds>
+        (std::chrono::system_clock::now().time_since_epoch()).count();
+
+  return millis_since_epoch;
+}
+
+void test_polling_speed(int test_num, Gy88Interface imu)
+{
+  unsigned long avg_speed = 0;
+  for(size_t i = 0; i < test_num; i++)
+  {
+    unsigned long start_time = get_millis_since_epoch();
+
+    for(size_t i = 0; i < 1001; i++)
+    {
+      imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_2G);
+      MPU6050 MPU6050_ = imu.get_MPU6050();
+    }
+
+    unsigned long end_time = get_millis_since_epoch();
+
+    avg_speed += (end_time - start_time);
+
+    // std::cout << "Total time it took to do a 1000 polls: " << end_time - start_time << std::endl;
+  }
+  avg_speed = avg_speed / test_num;
+
+  std::cout << "This is how long it took to poll 1000, " << test_num << " times: " << avg_speed << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -45,10 +78,10 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(1);
 
   imu_interface::Gy88Data gy88_data;
-
+  // test_polling_speed(5, imu);
   while(ros::ok())
   {
-    imu.read_bus(MPU6050_CHIP);
+    imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_2G);
     // imu.read_bus(HMC5883L);
     MPU6050 MPU6050_ = imu.get_MPU6050();
 
@@ -64,7 +97,7 @@ int main(int argc, char **argv)
     // gy88_data.compass_y = compass.y;
     // gy88_data.compass_z = compass.z;
 
-    publisher.publish(gy88_data);
+    // publisher.publish(gy88_data);
     print_gy_88(MPU6050_);
     ros::spinOnce();
     // loop_rate.sleep();

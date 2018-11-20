@@ -38,13 +38,13 @@ MPU6050 Gy88Interface::get_MPU6050()
   return MPU6050_;
 }
 
-bool Gy88Interface::read_bus(const int select_chip)
+bool Gy88Interface::read_bus(const int select_chip, float accel_resolution)
 {
 
   switch (select_chip)
   {
     case MPU6050_CHIP:
-      read_MPU6059_accel_();
+      read_MPU6059_accel_(accel_resolution);
       read_MPU6059_gyro_();
       break;
 
@@ -56,23 +56,23 @@ bool Gy88Interface::read_bus(const int select_chip)
 
 // **************************************** PRIVATE ****************************************
 
-void Gy88Interface::read_MPU6059_accel_()
+void Gy88Interface::read_MPU6059_accel_(float accel_resolution)
 {
 
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_L);
 
-  MPU6050_.accel_x = (msb << 8 | lsb) / MPU6050_A_SCALE;
+  MPU6050_.accel_x = (msb << 8 | lsb) / accel_resolution;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_L);
 
-  MPU6050_.accel_y = (msb << 8 | lsb) / MPU6050_A_SCALE;
+  MPU6050_.accel_y = (msb << 8 | lsb) / accel_resolution;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_L);
 
-  MPU6050_.accel_z = (msb << 8 | lsb) / MPU6050_A_SCALE;
+  MPU6050_.accel_z = (msb << 8 | lsb) / accel_resolution;
 
   MPU6050_.timestamp = get_millis_since_epoch_();
 }

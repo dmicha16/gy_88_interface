@@ -36,7 +36,11 @@
 #define MPU6050_RA_GYRO_ZOUT_H      0x47
 #define MPU6050_RA_GYRO_ZOUT_L      0x48
 
-#define MPU6050_A_SCALE             16384.0
+#define MPU6050_A_SCALE_2G          16384.0
+#define MPU6050_A_SCALE_4G          8192
+#define MPU6050_A_SCALE_8G          4096
+#define MPU6050_A_SCALE_16G         2048
+
 #define MPU6050_ANG_SCALE           131.0
 
 // **************************************** HMC5883L *****************************************
@@ -125,7 +129,7 @@ class Gy88Interface
 
     MPU6050 get_MPU6050();
 
-    bool read_bus(const int select_chip);
+    bool read_bus(const int select_chip, float accel_resolution);
 
   private:
 
@@ -134,7 +138,7 @@ class Gy88Interface
     int MPU6050_fd_;
     int HMC5883L_fd_;
 
-    void read_MPU6059_accel_();
+    void read_MPU6059_accel_(float accel_resolution);
     void read_MPU6059_gyro_();
     void read_HMC5883L_compass_();
 
