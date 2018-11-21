@@ -59,11 +59,15 @@ bool Gy88Interface::read_bus(const int select_chip, float accel_resolution, floa
   }
 }
 
+ulong_t Gy88Interface::get_read_timestamp()
+{
+  return current_millis_since_epoch_;
+}
+
 // **************************************** PRIVATE ****************************************
 
 void Gy88Interface::read_MPU6059_accel_(float accel_resolution)
 {
-
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_L);
 
@@ -78,8 +82,6 @@ void Gy88Interface::read_MPU6059_accel_(float accel_resolution)
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_L);
 
   chip_mpu6050_.accel_z = (msb << 8 | lsb) / accel_resolution;
-
-  chip_mpu6050_.timestamp = get_millis_since_epoch_();
 }
 
 void Gy88Interface::read_MPU6059_gyro_(float ang_scale)
@@ -98,8 +100,6 @@ void Gy88Interface::read_MPU6059_gyro_(float ang_scale)
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_L);
 
   chip_mpu6050_.gyro_z = (msb << 8 | lsb) / ang_scale;
-
-  chip_mpu6050_.timestamp = get_millis_since_epoch_();
 }
 
 void Gy88Interface::read_HMC5883L_compass_()
@@ -120,8 +120,6 @@ void Gy88Interface::read_HMC5883L_compass_()
   chip_hmc5883l_.compass_z = msb << 8 | lsb;
 
   chip_hmc5883l_.compass_angle = calculate_compass_angle_();
-
-  chip_hmc5883l_.timestamp = get_millis_since_epoch_();
 }
 
 float Gy88Interface::calculate_compass_angle_()
@@ -133,11 +131,8 @@ float Gy88Interface::calculate_compass_angle_()
   return angle;
 }
 
-ulong_t Gy88Interface::get_millis_since_epoch_()
+void Gy88Interface::set_millis_since_epoch_()
 {
-  ulong_t millis_since_epoch =
-    std::chrono::duration_cast<std::chrono::milliseconds>
-        (std::chrono::system_clock::now().time_since_epoch()).count();
-
-  return millis_since_epoch;
+  current_millis_since_epoch_ = std::chrono::duration_cast<std::chrono::milliseconds>
+    (std::chrono::system_clock::now().time_since_epoch()).count();
 }

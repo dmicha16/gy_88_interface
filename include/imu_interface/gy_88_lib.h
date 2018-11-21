@@ -83,8 +83,6 @@ struct ChipMPU6050
   float gyro_z;
 
   float temp;
-
-  unsigned long timestamp;
 };
 
 struct ChipHMC5883L
@@ -93,8 +91,6 @@ struct ChipHMC5883L
   float compass_y;
   float compass_z;
   float compass_angle;
-
-  unsigned long timestamp;
 };
 
 struct magnetometer
@@ -102,7 +98,6 @@ struct magnetometer
   float x;
   float y;
   float z;
-  unsigned long timestamp;
 };
 
 class Gy88Interface
@@ -118,14 +113,16 @@ class Gy88Interface
     ChipMPU6050 get_MPU5060_data();
     ChipHMC5883L get_HMC5883L_data();
 
+    ulong_t get_read_timestamp();
+
     bool read_bus(const int select_chip, float accel_resolution, float ang_scale);
 
   private:
-
-    std::string get_timestamp_();
-    unsigned long get_millis_since_epoch_();
     int MPU6050_fd_;
     int HMC5883L_fd_;
+
+    ulong_t current_millis_since_epoch_;
+    void set_millis_since_epoch_();
 
     void read_MPU6059_accel_(float accel_resolution);
     void read_MPU6059_gyro_(float ang_scale);
