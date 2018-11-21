@@ -46,6 +46,8 @@ ChipHMC5883L Gy88Interface::get_HMC5883L_data()
 bool Gy88Interface::read_bus(const int select_chip, float accel_resolution, float ang_scale)
 {
 
+  set_millis_since_epoch_();
+
   switch (select_chip)
   {
     case MPU6050_CHIP:
