@@ -11,4 +11,4 @@ float64 compass_y
 float64 compass_z
 float64 compass_angle
 
-float64 timestamp
+uint64 timestamp
