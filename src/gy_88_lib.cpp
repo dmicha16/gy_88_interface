@@ -61,7 +61,7 @@ bool Gy88Interface::read_bus(const int select_chip, float accel_resolution, floa
   }
 }
 
-ulong_t Gy88Interface::get_read_timestamp()
+uulong_t Gy88Interface::get_read_timestamp()
 {
   return current_millis_since_epoch_;
 }

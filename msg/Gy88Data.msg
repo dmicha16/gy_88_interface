@@ -1,14 +1,14 @@
-float64 accel_x
-float64 accel_y
-float64 accel_z
+float32 accel_x
+float32 accel_y
+float32 accel_z
 
-float64 gyro_x
-float64 gyro_y
-float64 gyro_z
+float32 gyro_x
+float32 gyro_y
+float32 gyro_z
 
-float64 compass_x
-float64 compass_y
-float64 compass_z
-float64 compass_angle
+float32 compass_x
+float32 compass_y
+float32 compass_z
+float32 compass_angle
 
 uint64 timestamp

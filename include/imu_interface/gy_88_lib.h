@@ -71,6 +71,7 @@
 #define PI            3.141592
 
 typedef unsigned long ulong_t;
+typedef unsigned long long uulong_t;
 
 struct ChipMPU6050
 {
@@ -113,7 +114,7 @@ class Gy88Interface
     ChipMPU6050 get_MPU5060_data();
     ChipHMC5883L get_HMC5883L_data();
 
-    ulong_t get_read_timestamp();
+    uulong_t get_read_timestamp();
 
     bool read_bus(const int select_chip, float accel_resolution, float ang_scale);
 
@@ -121,7 +122,7 @@ class Gy88Interface
     int MPU6050_fd_;
     int HMC5883L_fd_;
 
-    ulong_t current_millis_since_epoch_;
+    uulong_t current_millis_since_epoch_;
     void set_millis_since_epoch_();
 
     void read_MPU6059_accel_(float accel_resolution);

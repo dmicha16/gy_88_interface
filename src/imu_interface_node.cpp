@@ -3,9 +3,9 @@
 #include <iostream>
 #include "imu_interface/Gy88Data.h"
 
-ulong_t get_millis_since_epoch()
+uulong_t get_millis_since_epoch()
 {
-  ulong_t millis_since_epoch =
+  uulong_t millis_since_epoch =
     std::chrono::duration_cast<std::chrono::milliseconds>
         (std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -14,13 +14,13 @@ ulong_t get_millis_since_epoch()
 
 void test_polling_speed(int test_num, Gy88Interface imu)
 {
-  ulong_t avg_speed = 0;
+  uulong_t avg_speed = 0;
 
   ChipMPU6050 chip_mpu6050;
   ChipHMC5883L chip_hmc5883l;
   for(size_t i = 0; i < test_num; i++)
   {
-    ulong_t start_time = get_millis_since_epoch();
+    uulong_t start_time = get_millis_since_epoch();
 
     for(size_t i = 0; i < 1001; i++)
     {
@@ -30,7 +30,7 @@ void test_polling_speed(int test_num, Gy88Interface imu)
       chip_hmc5883l = imu.get_HMC5883L_data();
     }
 
-    ulong_t end_time = get_millis_since_epoch();
+    uulong_t end_time = get_millis_since_epoch();
 
     avg_speed += (end_time - start_time);
 
@@ -88,6 +88,7 @@ int main(int argc, char **argv)
     gy88_data.compass_z = chip_hmc5883l.compass_z;
     gy88_data.compass_angle = chip_hmc5883l.compass_angle;
 
+    ROS_INFO("%llu", imu.get_read_timestamp());
     gy88_data.timestamp = imu.get_read_timestamp();
 
     publisher.publish(gy88_data);
