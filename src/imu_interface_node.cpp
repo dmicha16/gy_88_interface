@@ -1,4 +1,3 @@
-
 #include "imu_interface/gy_88_lib.h"
 #include "ros/ros.h"
 #include <iostream>
@@ -66,9 +65,9 @@ int main(int argc, char **argv)
   else
     ROS_INFO("%s", "Connected to HMC5883L's I2C bus!");
 
-  int bits_ = imu.set_MPU6050_full_Scale_range();
-  ROS_INFO("%i", bits_);
-  // return 0;
+  int range = imu.set_MPU6050_full_scale_range(MPU6050_ACCEL_CONFIG_16G);
+  ROS_INFO("%i", range);
+  return 0;
 
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;
@@ -76,8 +75,6 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(10);
 
   imu_interface::Gy88Data gy88_data;
-  ROS_INFO_STREAM(std::fixed);
-  ROS_INFO_STREAM(std::setprecision(5));
 
   while(ros::ok())
   {

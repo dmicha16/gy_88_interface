@@ -44,6 +44,10 @@
 #define MPU6050_ANG_SCALE           131.0
 
 #define MPU6050_ACCEL_CONFIG        0x1c
+#define MPU6050_ACCEL_CONFIG_2G     0
+#define MPU6050_ACCEL_CONFIG_4G     8
+#define MPU6050_ACCEL_CONFIG_8G     16
+#define MPU6050_ACCEL_CONFIG_16G    24
 
 // **************************************** HMC5883L *****************************************
 
@@ -116,7 +120,7 @@ class Gy88Interface
     ChipMPU6050 get_MPU5060_data();
     ChipHMC5883L get_HMC5883L_data();
 
-    int set_MPU6050_full_Scale_range();
+    int set_MPU6050_full_scale_range(int range);
 
     uulong_t get_read_timestamp();
 

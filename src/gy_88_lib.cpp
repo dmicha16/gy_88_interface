@@ -22,15 +22,6 @@ bool Gy88Interface::connect_to_MPU6050()
   return true;
 }
 
-int Gy88Interface::set_MPU6050_full_Scale_range()
-{
-  int resolution = 8;
-  wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG, resolution);
-  int bits_ = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG);
-
-  return bits_;
-}
-
 bool Gy88Interface::connect_to_HMC5883L()
 {
   HMC5883L_fd_ = wiringPiI2CSetup(HMC5883L_ADDRESS);
@@ -40,6 +31,14 @@ bool Gy88Interface::connect_to_HMC5883L()
   wiringPiI2CWriteReg16(HMC5883L_fd_, HMC5883L_REG_MODE, HMC5883L_MODE_CONTINUOUS);
 
   return true;
+}
+
+int Gy88Interface::set_MPU6050_full_scale_range(int range)
+{
+  wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG, range);
+  int set_range = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG);
+
+  return set_range;
 }
 
 ChipMPU6050 Gy88Interface::get_MPU5060_data()
