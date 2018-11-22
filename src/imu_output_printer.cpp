@@ -5,7 +5,7 @@
 void print_gy_88(ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l)
 {
   ROS_INFO_STREAM(std::fixed);
-  ROS_INFO_STREAM(std::setprecision(5))
+  ROS_INFO_STREAM(std::setprecision(5));
   ROS_INFO_STREAM("A_X: " << chip_mpu6050.accel_x << " - " <<
                   "A_Y: " << chip_mpu6050.accel_x << " - " <<
                   "A_Z: " << chip_mpu6050.accel_x << " - ")

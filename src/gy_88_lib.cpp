@@ -14,19 +14,28 @@ Gy88Interface::~Gy88Interface() {}
 bool Gy88Interface::connect_to_MPU6050()
 {
   MPU6050_fd_ = wiringPiI2CSetup(MPU6050_SLAVE_ADDR);
-    if (MPU6050_fd_ == -1)
-        return false;
+  if (MPU6050_fd_ == -1)
+    return false;
 
   wiringPiI2CWriteReg16(MPU6050_fd_, MPU6050_PWR_MGMNT_ADDR, 0);
 
   return true;
 }
 
+int Gy88Interface::set_MPU6050_full_Scale_range()
+{
+  int resolution = 8;
+  wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG, resolution);
+  int bits_ = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG);
+
+  return bits_;
+}
+
 bool Gy88Interface::connect_to_HMC5883L()
 {
   HMC5883L_fd_ = wiringPiI2CSetup(HMC5883L_ADDRESS);
-    if (HMC5883L_fd_ == -1)
-        return false;
+  if (HMC5883L_fd_ == -1)
+    return false;
 
   wiringPiI2CWriteReg16(HMC5883L_fd_, HMC5883L_REG_MODE, HMC5883L_MODE_CONTINUOUS);
 
@@ -73,17 +82,25 @@ void Gy88Interface::read_MPU6059_accel_(float accel_resolution)
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_L);
 
-  chip_mpu6050_.accel_x = (msb << 8 | lsb) / accel_resolution;
+  chip_mpu6050_.accel_x = convert_bytes_to_short_(msb, lsb) / accel_resolution;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_L);
 
-  chip_mpu6050_.accel_y = (msb << 8 | lsb) / accel_resolution;
+  chip_mpu6050_.accel_y = convert_bytes_to_short_(msb, lsb) / accel_resolution;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_L);
 
-  chip_mpu6050_.accel_z = (msb << 8 | lsb) / accel_resolution;
+  chip_mpu6050_.accel_z = convert_bytes_to_short_(msb, lsb) / accel_resolution;
+}
+
+int Gy88Interface::convert_bytes_to_short_(short msb, short lsb)
+{
+  long t = msb * 0x100L + lsb;
+  if(t >= 32768)
+    t -= 65536;
+  return (int)t;
 }
 
 void Gy88Interface::read_MPU6059_gyro_(float ang_scale)
@@ -91,17 +108,17 @@ void Gy88Interface::read_MPU6059_gyro_(float ang_scale)
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_XOUT_L);
 
-  chip_mpu6050_.gyro_x = (msb << 8 | lsb) / ang_scale;
+  chip_mpu6050_.gyro_x = convert_bytes_to_short_(msb, lsb) / ang_scale;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_YOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_YOUT_L);
 
-  chip_mpu6050_.gyro_y = (msb << 8 | lsb) / ang_scale;
+  chip_mpu6050_.gyro_y = convert_bytes_to_short_(msb, lsb) / ang_scale;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_L);
 
-  chip_mpu6050_.gyro_z = (msb << 8 | lsb) / ang_scale;
+  chip_mpu6050_.gyro_z = convert_bytes_to_short_(msb, lsb) / ang_scale;
 }
 
 void Gy88Interface::read_HMC5883L_compass_()

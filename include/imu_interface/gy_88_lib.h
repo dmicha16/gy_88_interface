@@ -43,6 +43,8 @@
 
 #define MPU6050_ANG_SCALE           131.0
 
+#define MPU6050_ACCEL_CONFIG        0x1c
+
 // **************************************** HMC5883L *****************************************
 
 #define HMC5883L_ADDRESS            0x1e
@@ -114,6 +116,8 @@ class Gy88Interface
     ChipMPU6050 get_MPU5060_data();
     ChipHMC5883L get_HMC5883L_data();
 
+    int set_MPU6050_full_Scale_range();
+
     uulong_t get_read_timestamp();
 
     bool read_bus(const int select_chip, float accel_resolution, float ang_scale);
@@ -124,6 +128,8 @@ class Gy88Interface
 
     uulong_t current_millis_since_epoch_;
     void set_millis_since_epoch_();
+
+    int convert_bytes_to_short_(short msb, short lsb);
 
     void read_MPU6059_accel_(float accel_resolution);
     void read_MPU6059_gyro_(float ang_scale);

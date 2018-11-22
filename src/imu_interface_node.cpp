@@ -1,3 +1,4 @@
+
 #include "imu_interface/gy_88_lib.h"
 #include "ros/ros.h"
 #include <iostream>
@@ -10,6 +11,13 @@ uulong_t get_millis_since_epoch()
         (std::chrono::system_clock::now().time_since_epoch()).count();
 
   return millis_since_epoch;
+}
+
+void print(ChipMPU6050 chip_mpu6050)
+{
+  ROS_INFO_STREAM("A_X: " << chip_mpu6050.accel_x << " - " <<
+                  "A_Y: " << chip_mpu6050.accel_x << " - " <<
+                  "A_Z: " << chip_mpu6050.accel_x << " - ");
 }
 
 void test_polling_speed(int test_num, Gy88Interface imu)
@@ -58,18 +66,24 @@ int main(int argc, char **argv)
   else
     ROS_INFO("%s", "Connected to HMC5883L's I2C bus!");
 
+  int bits_ = imu.set_MPU6050_full_Scale_range();
+  ROS_INFO("%i", bits_);
+  // return 0;
+
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;
   ros::Publisher publisher = n.advertise<imu_interface::Gy88Data>("gy88_data", 1000);
-  ros::Rate loop_rate(1);
+  ros::Rate loop_rate(10);
 
   imu_interface::Gy88Data gy88_data;
+  ROS_INFO_STREAM(std::fixed);
+  ROS_INFO_STREAM(std::setprecision(5));
 
   while(ros::ok())
   {
     ROS_INFO_STREAM_ONCE("Started advertising on topic gy_88_data..");
 
-    imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_2G, MPU6050_ANG_SCALE);
+    imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_4G, MPU6050_ANG_SCALE);
     imu.read_bus(HMC5883L_CHIP, MPU6050_A_SCALE_2G, MPU6050_ANG_SCALE);
 
     ChipMPU6050 chip_mpu6050 = imu.get_MPU5060_data();
@@ -88,11 +102,12 @@ int main(int argc, char **argv)
     gy88_data.compass_z = chip_hmc5883l.compass_z;
     gy88_data.compass_angle = chip_hmc5883l.compass_angle;
 
-    ROS_INFO("%llu", imu.get_read_timestamp());
+    // ROS_INFO("%llu", imu.get_read_timestamp());
     gy88_data.timestamp = imu.get_read_timestamp();
 
     publisher.publish(gy88_data);
     // print_gy_88(chip_mpu6050, chip_hmc5883l);
+    print(chip_mpu6050);
     ros::spinOnce();
     loop_rate.sleep();
   }
