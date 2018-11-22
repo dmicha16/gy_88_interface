@@ -47,7 +47,16 @@
 #define MPU6050_ACCEL_CONFIG_8G     16
 #define MPU6050_ACCEL_CONFIG_16G    24
 
-#define MPU6050_ANG_SCALE           131.0
+#define MPU6050_G_SCALE_250         131
+#define MPU6050_G_SCALE_500         65.5
+#define MPU6050_G_SCALE_1000        32.8
+#define MPU6050_G_SCALE_2000        16.4
+
+#define MPU6050_GYRO_CONFIG         0x1b
+#define MPU6050_GYRO_CONFIG_250     0
+#define MPU6050_GYRO_CONFIG_500     8
+#define MPU6050_GYRO_CONFIG_1000    16
+#define MPU6050_GYRO_CONFIG_2000    24
 
 // **************************************** HMC5883L *****************************************
 
@@ -120,25 +129,28 @@ class Gy88Interface
     ChipMPU6050 get_MPU5060_data();
     ChipHMC5883L get_HMC5883L_data();
 
-    int set_MPU6050_full_scale_range(int range);
+    int set_MPU6050_accel_range(int range);
+    int set_MPU6050_gyro_range(int range);
 
     uulong_t get_read_timestamp();
 
-    bool read_bus(const int select_chip, float ang_scale);
+    bool read_bus(const int select_chip);
 
   private:
     int MPU6050_fd_;
     int HMC5883L_fd_;
     float accel_scale_range_;
+    float gyro_scale_range_;
     ChipMPU6050 chip_mpu6050_;
     ChipHMC5883L chip_hmc5883l_;
 
     uulong_t current_millis_since_epoch_;
     void set_millis_since_epoch_();
-    void set_MPU6050_full_scale_range_(int range);
+    void set_MPU6050_accel_scale_range_(int range);
+    void set_MPU6050_gyro_scale_range_(int range);
 
     void read_MPU6059_accel_();
-    void read_MPU6059_gyro_(float ang_scale);
+    void read_MPU6059_gyro_();
     void read_HMC5883L_compass_();
 
     float calculate_compass_angle_();

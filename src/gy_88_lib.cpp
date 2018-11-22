@@ -34,12 +34,22 @@ bool Gy88Interface::connect_to_HMC5883L()
   return true;
 }
 
-int Gy88Interface::set_MPU6050_full_scale_range(int range)
+int Gy88Interface::set_MPU6050_accel_range(int range)
 {
   wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG, range);
   int set_range = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG);
 
-  set_MPU6050_full_scale_range_(range);
+  set_MPU6050_accel_scale_range_(range);
+
+  return set_range;
+}
+
+int Gy88Interface::set_MPU6050_gyro_range(int range)
+{
+  wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_GYRO_CONFIG, range);
+  int set_range = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_GYRO_CONFIG);
+
+  set_MPU6050_gyro_scale_range_(range);
 
   return set_range;
 }
@@ -54,7 +64,7 @@ ChipHMC5883L Gy88Interface::get_HMC5883L_data()
   return chip_hmc5883l_;
 }
 
-bool Gy88Interface::read_bus(const int select_chip, float ang_scale)
+bool Gy88Interface::read_bus(const int select_chip)
 {
 
   set_millis_since_epoch_();
@@ -63,7 +73,7 @@ bool Gy88Interface::read_bus(const int select_chip, float ang_scale)
   {
     case MPU6050_CHIP:
       read_MPU6059_accel_();
-      read_MPU6059_gyro_(ang_scale);
+      read_MPU6059_gyro_();
       break;
 
     case HMC5883L_CHIP:
@@ -79,7 +89,7 @@ uulong_t Gy88Interface::get_read_timestamp()
 
 // **************************************** PRIVATE ****************************************
 
-void Gy88Interface::set_MPU6050_full_scale_range_(int range)
+void Gy88Interface::set_MPU6050_accel_scale_range_(int range)
 {
   switch (range)
   {
@@ -94,6 +104,25 @@ void Gy88Interface::set_MPU6050_full_scale_range_(int range)
       break;
     case MPU6050_ACCEL_CONFIG_16G:
       accel_scale_range_ = MPU6050_A_SCALE_16G;
+      break;
+  }
+}
+
+void Gy88Interface::set_MPU6050_gyro_scale_range_(int range)
+{
+  switch (range)
+  {
+    case MPU6050_GYRO_CONFIG_250:
+      gyro_scale_range_ = MPU6050_G_SCALE_250;
+      break;
+    case MPU6050_GYRO_CONFIG_500:
+      gyro_scale_range_ = MPU6050_G_SCALE_500;
+      break;
+    case MPU6050_GYRO_CONFIG_1000:
+      gyro_scale_range_ = MPU6050_G_SCALE_1000;
+      break;
+    case MPU6050_GYRO_CONFIG_2000:
+      gyro_scale_range_ = MPU6050_G_SCALE_2000;
       break;
   }
 }
@@ -116,30 +145,22 @@ void Gy88Interface::read_MPU6059_accel_()
   chip_mpu6050_.accel_z = convert_bytes_to_short_(msb, lsb) / accel_scale_range_;
 }
 
-int Gy88Interface::convert_bytes_to_short_(short msb, short lsb)
-{
-  long t = msb * 0x100L + lsb;
-  if(t >= 32768)
-    t -= 65536;
-  return (int)t;
-}
-
-void Gy88Interface::read_MPU6059_gyro_(float ang_scale)
+void Gy88Interface::read_MPU6059_gyro_()
 {
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_XOUT_L);
 
-  chip_mpu6050_.gyro_x = convert_bytes_to_short_(msb, lsb) / ang_scale;
+  chip_mpu6050_.gyro_x = convert_bytes_to_short_(msb, lsb) / gyro_scale_range_;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_YOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_YOUT_L);
 
-  chip_mpu6050_.gyro_y = convert_bytes_to_short_(msb, lsb) / ang_scale;
+  chip_mpu6050_.gyro_y = convert_bytes_to_short_(msb, lsb) / gyro_scale_range_;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_GYRO_ZOUT_L);
 
-  chip_mpu6050_.gyro_z = convert_bytes_to_short_(msb, lsb) / ang_scale;
+  chip_mpu6050_.gyro_z = convert_bytes_to_short_(msb, lsb) / gyro_scale_range_;
 }
 
 void Gy88Interface::read_HMC5883L_compass_()
@@ -169,6 +190,14 @@ float Gy88Interface::calculate_compass_angle_()
    * (180 / PI) + 180;
 
   return angle;
+}
+
+int Gy88Interface::convert_bytes_to_short_(short msb, short lsb)
+{
+  long t = msb * 0x100L + lsb;
+  if(t >= 32768)
+    t -= 65536;
+  return (int)t;
 }
 
 void Gy88Interface::set_millis_since_epoch_()

@@ -14,9 +14,13 @@ uulong_t get_millis_since_epoch()
 
 void print(ChipMPU6050 chip_mpu6050)
 {
-  ROS_INFO_STREAM("A_X: " << chip_mpu6050.accel_x << " - " <<
-                  "A_Y: " << chip_mpu6050.accel_x << " - " <<
-                  "A_Z: " << chip_mpu6050.accel_x << " - ");
+  // ROS_INFO_STREAM("A_X: " << chip_mpu6050.accel_x << " - " <<
+  //                 "A_Y: " << chip_mpu6050.accel_x << " - " <<
+  //                 "A_Z: " << chip_mpu6050.accel_x << " - ");
+
+  ROS_INFO_STREAM("A_X: " << chip_mpu6050.gyro_x << " - " <<
+                  "A_Y: " << chip_mpu6050.gyro_y << " - " <<
+                  "A_Z: " << chip_mpu6050.gyro_z << " - ");
 }
 
 void test_polling_speed(int test_num, Gy88Interface imu)
@@ -31,8 +35,8 @@ void test_polling_speed(int test_num, Gy88Interface imu)
 
     for(size_t i = 0; i < 1001; i++)
     {
-      imu.read_bus(MPU6050_CHIP, MPU6050_ANG_SCALE);
-      imu.read_bus(HMC5883L_CHIP, MPU6050_ANG_SCALE);
+      imu.read_bus(MPU6050_CHIP);
+      imu.read_bus(HMC5883L_CHIP);
       chip_mpu6050 = imu.get_MPU5060_data();
       chip_hmc5883l = imu.get_HMC5883L_data();
     }
@@ -65,9 +69,8 @@ int main(int argc, char **argv)
   else
     ROS_INFO("%s", "Connected to HMC5883L's I2C bus!");
 
-  int range = imu.set_MPU6050_full_scale_range(MPU6050_ACCEL_CONFIG_16G);
-  ROS_INFO("%i", range);
-  // return 0;
+  imu.set_MPU6050_accel_range(MPU6050_ACCEL_CONFIG_16G);
+  imu.set_MPU6050_gyro_range(MPU6050_GYRO_CONFIG_2000);
 
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;
@@ -80,8 +83,8 @@ int main(int argc, char **argv)
   {
     ROS_INFO_STREAM_ONCE("Started advertising on topic gy_88_data..");
 
-    imu.read_bus(MPU6050_CHIP, MPU6050_ANG_SCALE);
-    imu.read_bus(HMC5883L_CHIP, MPU6050_ANG_SCALE);
+    imu.read_bus(MPU6050_CHIP);
+    imu.read_bus(HMC5883L_CHIP);
 
     ChipMPU6050 chip_mpu6050 = imu.get_MPU5060_data();
     ChipHMC5883L chip_hmc5883l = imu.get_HMC5883L_data();
