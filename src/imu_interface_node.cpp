@@ -12,15 +12,20 @@ uulong_t get_millis_since_epoch()
   return millis_since_epoch;
 }
 
-void print(ChipMPU6050 chip_mpu6050)
+void print(ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l)
 {
   // ROS_INFO_STREAM("A_X: " << chip_mpu6050.accel_x << " - " <<
   //                 "A_Y: " << chip_mpu6050.accel_x << " - " <<
   //                 "A_Z: " << chip_mpu6050.accel_x << " - ");
 
-  ROS_INFO_STREAM("A_X: " << chip_mpu6050.gyro_x << " - " <<
-                  "A_Y: " << chip_mpu6050.gyro_y << " - " <<
-                  "A_Z: " << chip_mpu6050.gyro_z << " - ");
+  // ROS_INFO_STREAM("A_X: " << chip_mpu6050.gyro_x << " - " <<
+  //                 "A_Y: " << chip_mpu6050.gyro_y << " - " <<
+  //                 "A_Z: " << chip_mpu6050.gyro_z << " - ");
+
+  ROS_INFO_STREAM("A_X: " << chip_hmc5883l.compass_x << " - " <<
+                  "A_Y: " << chip_hmc5883l.compass_y << " - " <<
+                  "A_Z: " << chip_hmc5883l.compass_z << " - " <<
+                  "A_Z: " << chip_hmc5883l.compass_angle << " - ");
 }
 
 void test_polling_speed(int test_num, Gy88Interface imu)
@@ -107,7 +112,7 @@ int main(int argc, char **argv)
 
     publisher.publish(gy88_data);
     // print_gy_88(chip_mpu6050, chip_hmc5883l);
-    print(chip_mpu6050);
+    print(chip_mpu6050, chip_hmc5883l);
     ros::spinOnce();
     loop_rate.sleep();
   }

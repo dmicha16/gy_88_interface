@@ -168,17 +168,17 @@ void Gy88Interface::read_HMC5883L_compass_()
   short msb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_MSB_X);
   short lsb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_LSB_X);
 
-  chip_hmc5883l_.compass_x = msb << 8 | lsb;
+  chip_hmc5883l_.compass_x = convert_bytes_to_short_(msb, lsb);
 
   msb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_MSB_Y);
   lsb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_LSB_Y);
 
-  chip_hmc5883l_.compass_y = msb << 8 | lsb;
+  chip_hmc5883l_.compass_y = convert_bytes_to_short_(msb, lsb);
 
   msb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_MSB_Z);
   lsb = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_REG_LSB_Z);
 
-  chip_hmc5883l_.compass_z = msb << 8 | lsb;
+  chip_hmc5883l_.compass_z = convert_bytes_to_short_(msb, lsb);
 
   chip_hmc5883l_.compass_angle = calculate_compass_angle_();
 }
