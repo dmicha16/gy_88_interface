@@ -1,4 +1,5 @@
 #include "imu_interface/gy_88_lib.h"
+#include <iostream>
 
 // ******************************** CONSTRUCTORS-DESTRUCTORS *******************************
 
@@ -38,6 +39,8 @@ int Gy88Interface::set_MPU6050_full_scale_range(int range)
   wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG, range);
   int set_range = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_ACCEL_CONFIG);
 
+  set_MPU6050_full_scale_range_(range);
+
   return set_range;
 }
 
@@ -51,7 +54,7 @@ ChipHMC5883L Gy88Interface::get_HMC5883L_data()
   return chip_hmc5883l_;
 }
 
-bool Gy88Interface::read_bus(const int select_chip, float accel_resolution, float ang_scale)
+bool Gy88Interface::read_bus(const int select_chip, float ang_scale)
 {
 
   set_millis_since_epoch_();
@@ -59,7 +62,7 @@ bool Gy88Interface::read_bus(const int select_chip, float accel_resolution, floa
   switch (select_chip)
   {
     case MPU6050_CHIP:
-      read_MPU6059_accel_(accel_resolution);
+      read_MPU6059_accel_();
       read_MPU6059_gyro_(ang_scale);
       break;
 
@@ -76,22 +79,41 @@ uulong_t Gy88Interface::get_read_timestamp()
 
 // **************************************** PRIVATE ****************************************
 
-void Gy88Interface::read_MPU6059_accel_(float accel_resolution)
+void Gy88Interface::set_MPU6050_full_scale_range_(int range)
+{
+  switch (range)
+  {
+    case MPU6050_ACCEL_CONFIG_2G:
+      accel_scale_range_ = MPU6050_A_SCALE_2G;
+      break;
+    case MPU6050_ACCEL_CONFIG_4G:
+      accel_scale_range_ = MPU6050_A_SCALE_4G;
+      break;
+    case MPU6050_ACCEL_CONFIG_8G:
+      accel_scale_range_ = MPU6050_A_SCALE_8G;
+      break;
+    case MPU6050_ACCEL_CONFIG_16G:
+      accel_scale_range_ = MPU6050_A_SCALE_16G;
+      break;
+  }
+}
+
+void Gy88Interface::read_MPU6059_accel_()
 {
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_L);
 
-  chip_mpu6050_.accel_x = convert_bytes_to_short_(msb, lsb) / accel_resolution;
+  chip_mpu6050_.accel_x = convert_bytes_to_short_(msb, lsb) / accel_scale_range_;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_L);
 
-  chip_mpu6050_.accel_y = convert_bytes_to_short_(msb, lsb) / accel_resolution;
+  chip_mpu6050_.accel_y = convert_bytes_to_short_(msb, lsb) / accel_scale_range_;
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_L);
 
-  chip_mpu6050_.accel_z = convert_bytes_to_short_(msb, lsb) / accel_resolution;
+  chip_mpu6050_.accel_z = convert_bytes_to_short_(msb, lsb) / accel_scale_range_;
 }
 
 int Gy88Interface::convert_bytes_to_short_(short msb, short lsb)

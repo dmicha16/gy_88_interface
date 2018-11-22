@@ -41,13 +41,13 @@
 #define MPU6050_A_SCALE_8G          4096
 #define MPU6050_A_SCALE_16G         2048
 
-#define MPU6050_ANG_SCALE           131.0
-
 #define MPU6050_ACCEL_CONFIG        0x1c
 #define MPU6050_ACCEL_CONFIG_2G     0
 #define MPU6050_ACCEL_CONFIG_4G     8
 #define MPU6050_ACCEL_CONFIG_8G     16
 #define MPU6050_ACCEL_CONFIG_16G    24
+
+#define MPU6050_ANG_SCALE           131.0
 
 // **************************************** HMC5883L *****************************************
 
@@ -124,23 +124,23 @@ class Gy88Interface
 
     uulong_t get_read_timestamp();
 
-    bool read_bus(const int select_chip, float accel_resolution, float ang_scale);
+    bool read_bus(const int select_chip, float ang_scale);
 
   private:
     int MPU6050_fd_;
     int HMC5883L_fd_;
+    float accel_scale_range_;
+    ChipMPU6050 chip_mpu6050_;
+    ChipHMC5883L chip_hmc5883l_;
 
     uulong_t current_millis_since_epoch_;
     void set_millis_since_epoch_();
+    void set_MPU6050_full_scale_range_(int range);
 
-    int convert_bytes_to_short_(short msb, short lsb);
-
-    void read_MPU6059_accel_(float accel_resolution);
+    void read_MPU6059_accel_();
     void read_MPU6059_gyro_(float ang_scale);
     void read_HMC5883L_compass_();
 
     float calculate_compass_angle_();
-
-    ChipMPU6050 chip_mpu6050_;
-    ChipHMC5883L chip_hmc5883l_;
+    int convert_bytes_to_short_(short msb, short lsb);
 };

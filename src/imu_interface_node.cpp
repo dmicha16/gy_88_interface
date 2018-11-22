@@ -31,8 +31,8 @@ void test_polling_speed(int test_num, Gy88Interface imu)
 
     for(size_t i = 0; i < 1001; i++)
     {
-      imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_2G, MPU6050_ANG_SCALE);
-      imu.read_bus(HMC5883L_CHIP, MPU6050_A_SCALE_2G, MPU6050_ANG_SCALE);
+      imu.read_bus(MPU6050_CHIP, MPU6050_ANG_SCALE);
+      imu.read_bus(HMC5883L_CHIP, MPU6050_ANG_SCALE);
       chip_mpu6050 = imu.get_MPU5060_data();
       chip_hmc5883l = imu.get_HMC5883L_data();
     }
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
   int range = imu.set_MPU6050_full_scale_range(MPU6050_ACCEL_CONFIG_16G);
   ROS_INFO("%i", range);
-  return 0;
+  // return 0;
 
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;
@@ -80,8 +80,8 @@ int main(int argc, char **argv)
   {
     ROS_INFO_STREAM_ONCE("Started advertising on topic gy_88_data..");
 
-    imu.read_bus(MPU6050_CHIP, MPU6050_A_SCALE_4G, MPU6050_ANG_SCALE);
-    imu.read_bus(HMC5883L_CHIP, MPU6050_A_SCALE_2G, MPU6050_ANG_SCALE);
+    imu.read_bus(MPU6050_CHIP, MPU6050_ANG_SCALE);
+    imu.read_bus(HMC5883L_CHIP, MPU6050_ANG_SCALE);
 
     ChipMPU6050 chip_mpu6050 = imu.get_MPU5060_data();
     ChipHMC5883L chip_hmc5883l = imu.get_HMC5883L_data();
