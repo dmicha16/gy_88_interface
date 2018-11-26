@@ -19,6 +19,11 @@
 #define MPU6050_PWR_MGMNT_ADDR      0x6B
 #define MPU6050_REG_DATA_START      0x3b
 
+#define MPU6050_SAMPLE_RATE_CONF    0x19
+#define MPU6050_SAMPLE_RATE_1KHZ    7
+#define MPU6050_SAMPLE_RATE_750MHZ  9
+#define MPU6050_SAMPLE_RATE_5000MHZ 15
+
 #define MPU6050_RA_ACCEL_XOUT_H     0x3B
 #define MPU6050_RA_ACCEL_XOUT_L     0x3C
 #define MPU6050_RA_ACCEL_YOUT_H     0x3D
@@ -136,6 +141,9 @@ class Gy88Interface
 
     int set_MPU6050_accel_range(int range);
     int set_MPU6050_gyro_range(int range);
+
+    // bool set_MPU6050_sample_rate(int sample_rate);
+    // bool set_HMC5883L_sample_rate(int sample_rate);
 
     uulong_t get_read_timestamp();
 

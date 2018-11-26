@@ -1,5 +1,6 @@
 #include "imu_interface/gy_88_lib.h"
 #include <iostream>
+#include <bitset>
 
 // ******************************** CONSTRUCTORS-DESTRUCTORS *******************************
 
@@ -53,6 +54,20 @@ int Gy88Interface::set_MPU6050_gyro_range(int range)
 
   return set_range;
 }
+
+// bool Gy88Interface::set_MPU6050_sample_rate(int sample_rate)
+// {
+
+//   std::bitset<8> x(sample_rate);
+//   std::cout << x << std::endl;
+
+//   wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_SAMPLE_RATE_CONF, sample_rate);
+//   int set_sample_rate = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_SAMPLE_RATE_CONF);
+
+//   std::bitset<8> y(set_sample_rate);
+//   std::cout << y << std::endl;
+//   return true;
+// }
 
 ChipMPU6050 Gy88Interface::get_MPU5060_data()
 {
@@ -129,10 +144,19 @@ void Gy88Interface::set_MPU6050_gyro_scale_range_(int range)
 
 void Gy88Interface::read_MPU6059_accel_()
 {
+
+  uulong_t start_time = std::chrono::duration_cast<std::chrono::milliseconds>
+        (std::chrono::system_clock::now().time_since_epoch()).count();
   short msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_H);
   short lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_XOUT_L);
 
   chip_mpu6050_.accel_x = convert_bytes_to_short_(msb, lsb) / accel_scale_range_;
+
+  uulong_t end_time = std::chrono::duration_cast<std::chrono::milliseconds>
+        (std::chrono::system_clock::now().time_since_epoch()).count();
+
+   // std::cout << "Reading time: " << end_time - start_time << std::endl;
+
 
   msb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_H);
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_YOUT_L);

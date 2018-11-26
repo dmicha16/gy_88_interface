@@ -1,3 +1,4 @@
+
 #include "imu_interface/gy_88_lib.h"
 #include "ros/ros.h"
 #include <iostream>
@@ -40,17 +41,18 @@ void test_polling_speed(int test_num, Gy88Interface imu)
 
     for(size_t i = 0; i < 1001; i++)
     {
+      ROS_INFO_ONCE("Made it to for loop!!");
+      // ROS_INFO("Current i: %i", i);
       imu.read_bus(MPU6050_CHIP);
       imu.read_bus(HMC5883L_CHIP);
-      chip_mpu6050 = imu.get_MPU5060_data();
-      chip_hmc5883l = imu.get_HMC5883L_data();
+      // chip_mpu6050 = imu.get_MPU5060_data();
+      // chip_hmc5883l = imu.get_HMC5883L_data();
     }
 
     uulong_t end_time = get_millis_since_epoch();
 
     avg_speed += (end_time - start_time);
 
-    // std::cout << "Total time it took to do a 1000 polls: " << end_time - start_time << std::endl;
   }
   avg_speed = avg_speed / test_num;
 
@@ -77,10 +79,15 @@ int main(int argc, char **argv)
   imu.set_MPU6050_accel_range(MPU6050_ACCEL_CONFIG_16G);
   imu.set_MPU6050_gyro_range(MPU6050_GYRO_CONFIG_2000);
 
+  imu.set_MPU6050_sample_rate(MPU6050_SAMPLE_RATE_1KHZ);
+
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;
   ros::Publisher publisher = n.advertise<imu_interface::Gy88Data>("gy88_data", 1000);
   ros::Rate loop_rate(10);
+
+  test_polling_speed(1, imu);
+  return 0;
 
   imu_interface::Gy88Data gy88_data;
 
@@ -111,10 +118,10 @@ int main(int argc, char **argv)
     gy88_data.timestamp = imu.get_read_timestamp();
 
     publisher.publish(gy88_data);
-    // print_gy_88(chip_mpu6050, chip_hmc5883l);
+
     print(chip_mpu6050, chip_hmc5883l);
     ros::spinOnce();
-    loop_rate.sleep();
+    // loop_rate.sleep();
   }
   return 0;
 }
