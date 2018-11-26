@@ -79,11 +79,12 @@
 #define HMC5883L_MODE_CONTINUOUS    0x00
 #define HMC5883L_MODE_SINGLE        0x01
 
-#define MPU6050_CHIP  0
-#define HMC5883L_CHIP 1
-#define BMP085_CHIP   2
+#define MPU6050_CHIP                0
+#define HMC5883L_CHIP               1
+#define BMP085_CHIP                 2
 
-#define PI            3.141592
+#define PI                          3.141592
+#define STANDARD_GRAVITIY           9.80665
 
 typedef unsigned long ulong_t;
 typedef unsigned long long uulong_t;
@@ -93,6 +94,10 @@ struct ChipMPU6050
   float accel_x;
   float accel_y;
   float accel_z;
+
+  float si_accel_x;
+  float si_accel_y;
+  float si_accel_z;
 
   float gyro_x;
   float gyro_y;
@@ -141,6 +146,7 @@ class Gy88Interface
     int HMC5883L_fd_;
     float accel_scale_range_;
     float gyro_scale_range_;
+
     ChipMPU6050 chip_mpu6050_;
     ChipHMC5883L chip_hmc5883l_;
 
@@ -152,6 +158,8 @@ class Gy88Interface
     void read_MPU6059_accel_();
     void read_MPU6059_gyro_();
     void read_HMC5883L_compass_();
+
+    void calculate_si_accel_();
 
     float calculate_compass_angle_();
     int convert_bytes_to_short_(short msb, short lsb);

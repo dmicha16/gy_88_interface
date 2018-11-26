@@ -143,6 +143,8 @@ void Gy88Interface::read_MPU6059_accel_()
   lsb = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_RA_ACCEL_ZOUT_L);
 
   chip_mpu6050_.accel_z = convert_bytes_to_short_(msb, lsb) / accel_scale_range_;
+
+  calculate_si_accel_();
 }
 
 void Gy88Interface::read_MPU6059_gyro_()
@@ -181,6 +183,13 @@ void Gy88Interface::read_HMC5883L_compass_()
   chip_hmc5883l_.compass_z = convert_bytes_to_short_(msb, lsb);
 
   chip_hmc5883l_.compass_angle = calculate_compass_angle_();
+}
+
+void Gy88Interface::calculate_si_accel_()
+{
+  chip_mpu6050_.si_accel_x = chip_mpu6050_.accel_x * STANDARD_GRAVITIY;
+  chip_mpu6050_.si_accel_y = chip_mpu6050_.accel_y * STANDARD_GRAVITIY;
+  chip_mpu6050_.si_accel_z = chip_mpu6050_.accel_z * STANDARD_GRAVITIY;
 }
 
 float Gy88Interface::calculate_compass_angle_()

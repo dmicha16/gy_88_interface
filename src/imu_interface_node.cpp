@@ -94,9 +94,10 @@ int main(int argc, char **argv)
     ChipMPU6050 chip_mpu6050 = imu.get_MPU5060_data();
     ChipHMC5883L chip_hmc5883l = imu.get_HMC5883L_data();
 
-    gy88_data.accel_x = chip_mpu6050.accel_x;
-    gy88_data.accel_y = chip_mpu6050.accel_y;
-    gy88_data.accel_z = chip_mpu6050.accel_z;
+    gy88_data.si_accel_x = chip_mpu6050.si_accel_x;
+    gy88_data.si_accel_y = chip_mpu6050.si_accel_y;
+    gy88_data.si_accel_z = chip_mpu6050.si_accel_z;
+
 
     gy88_data.gyro_x = chip_mpu6050.gyro_x;
     gy88_data.gyro_y = chip_mpu6050.gyro_y;
@@ -107,7 +108,6 @@ int main(int argc, char **argv)
     gy88_data.compass_z = chip_hmc5883l.compass_z;
     gy88_data.compass_angle = chip_hmc5883l.compass_angle;
 
-    // ROS_INFO("%llu", imu.get_read_timestamp());
     gy88_data.timestamp = imu.get_read_timestamp();
 
     publisher.publish(gy88_data);
