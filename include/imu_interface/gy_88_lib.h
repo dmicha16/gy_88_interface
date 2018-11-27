@@ -1,3 +1,4 @@
+
 #include <cmath>
 #include <bitset>
 #include <sstream>
@@ -66,7 +67,6 @@
 // **************************************** HMC5883L *****************************************
 
 #define HMC5883L_ADDRESS            0x1e
-#define HMC5883L_SAMPLE_RATE_CONF   0x00
 
 #define HCM5883L_REG_CONFIG_A       0x00
 #define HCM5883L_REG_CONFIG_B       0x01
@@ -84,6 +84,11 @@
 
 #define HMC5883L_MODE_CONTINUOUS    0x00
 #define HMC5883L_MODE_SINGLE        0x01
+
+#define HMC5883L_SAMPLE_RATE_CONF   0x00
+#define HMC5883L_SAMPLE_RATE_75HZ   256
+
+// **************************************** General *********************************************
 
 #define MPU6050_CHIP                0
 #define HMC5883L_CHIP               1
@@ -143,7 +148,7 @@ class Gy88Interface
     int set_MPU6050_accel_range(int range);
     int set_MPU6050_gyro_range(int range);
 
-    // bool set_MPU6050_sample_rate(int sample_rate);
+    bool set_MPU6050_sample_rate(int sample_rate);
     bool set_HMC5883L_sample_rate(int sample_rate);
 
     uulong_t get_read_timestamp();

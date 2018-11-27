@@ -55,31 +55,27 @@ int Gy88Interface::set_MPU6050_gyro_range(int range)
   return set_range;
 }
 
-// bool Gy88Interface::set_MPU6050_sample_rate(int sample_rate)
-// {
+bool Gy88Interface::set_MPU6050_sample_rate(int sample_rate)
+{
 
-//   std::bitset<8> x(sample_rate);
-//   std::cout << x << std::endl;
+  wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_SAMPLE_RATE_CONF, sample_rate);
+  int set_sample_rate = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_SAMPLE_RATE_CONF);
 
-//   wiringPiI2CWriteReg8(MPU6050_fd_, MPU6050_SAMPLE_RATE_CONF, sample_rate);
-//   int set_sample_rate = wiringPiI2CReadReg8(MPU6050_fd_, MPU6050_SAMPLE_RATE_CONF);
+  if(set_sample_rate != sample_rate)
+    return false;
 
-//   std::bitset<8> y(set_sample_rate);
-//   std::cout << y << std::endl;
-//   return true;
-// }
+  return true;
+}
 
 bool Gy88Interface::set_HMC5883L_sample_rate(int sample_rate)
 {
 
-  std::bitset<8> x(sample_rate);
-  std::cout << x << std::endl;
-
   wiringPiI2CWriteReg8(HMC5883L_fd_, HMC5883L_SAMPLE_RATE_CONF, sample_rate);
   int set_sample_rate = wiringPiI2CReadReg8(HMC5883L_fd_, HMC5883L_SAMPLE_RATE_CONF);
 
-  std::bitset<8> y(set_sample_rate);
-  std::cout << y << std::endl;
+  if(set_sample_rate != sample_rate)
+    return false;
+
   return true;
 }
 
