@@ -79,7 +79,9 @@ int main(int argc, char **argv)
   imu.set_MPU6050_accel_range(MPU6050_ACCEL_CONFIG_16G);
   imu.set_MPU6050_gyro_range(MPU6050_GYRO_CONFIG_2000);
 
-  imu.set_MPU6050_sample_rate(MPU6050_SAMPLE_RATE_1KHZ);
+  // imu.set_MPU6050_sample_rate(MPU6050_SAMPLE_RATE_1KHZ);
+  imu.set_HMC5883L_sample_rate(252);
+  // return 0;
 
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;

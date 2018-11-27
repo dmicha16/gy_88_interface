@@ -66,6 +66,7 @@
 // **************************************** HMC5883L *****************************************
 
 #define HMC5883L_ADDRESS            0x1e
+#define HMC5883L_SAMPLE_RATE_CONF   0x00
 
 #define HCM5883L_REG_CONFIG_A       0x00
 #define HCM5883L_REG_CONFIG_B       0x01
@@ -143,7 +144,7 @@ class Gy88Interface
     int set_MPU6050_gyro_range(int range);
 
     // bool set_MPU6050_sample_rate(int sample_rate);
-    // bool set_HMC5883L_sample_rate(int sample_rate);
+    bool set_HMC5883L_sample_rate(int sample_rate);
 
     uulong_t get_read_timestamp();
 
