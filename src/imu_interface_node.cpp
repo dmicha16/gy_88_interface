@@ -45,8 +45,8 @@ void test_polling_speed(int test_num, Gy88Interface imu)
       // ROS_INFO("Current i: %i", i);
       imu.read_bus(MPU6050_CHIP);
       imu.read_bus(HMC5883L_CHIP);
-      // chip_mpu6050 = imu.get_MPU5060_data();
-      // chip_hmc5883l = imu.get_HMC5883L_data();
+      chip_mpu6050 = imu.get_MPU5060_data();
+      chip_hmc5883l = imu.get_HMC5883L_data();
     }
 
     uulong_t end_time = get_millis_since_epoch();
@@ -57,6 +57,7 @@ void test_polling_speed(int test_num, Gy88Interface imu)
   avg_speed = avg_speed / test_num;
 
   std::cout << "This is how long it took to poll 1000, " << test_num << " times: " << avg_speed << std::endl;
+  std::cout << "In Hz that is: " << 1000/(avg_speed/1000) << "Hz" << std::endl;
 }
 
 int main(int argc, char **argv)
