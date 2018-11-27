@@ -34,8 +34,10 @@ void evaluate_results(std::vector<int> tests_avg_speed, int test_repetitions)
   float trials_mean, sum = 0.0, std_dev = 0.0;
 
   for(int n: tests_avg_speed)
+  {
     sum += n;
     ROS_INFO_STREAM("The n-th element of vector test_avg_speeds: " << n);
+  }
 
   ROS_INFO("----------");
   trials_mean = sum / test_repetitions;
@@ -147,3 +149,4 @@ int main(int argc, char **argv)
     // loop_rate.sleep();
   }
   return 0;
+}
