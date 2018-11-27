@@ -86,7 +86,7 @@
 #define HMC5883L_MODE_SINGLE        0x01
 
 #define HMC5883L_SAMPLE_RATE_CONF   0x00
-#define HMC5883L_SAMPLE_RATE_75HZ   256
+#define HMC5883L_SAMPLE_RATE_75HZ   252
 
 // **************************************** General *********************************************
 
