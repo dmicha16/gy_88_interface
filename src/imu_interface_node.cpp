@@ -1,4 +1,3 @@
-
 #include "imu_interface/gy_88_lib.h"
 #include "ros/ros.h"
 #include <iostream>
@@ -36,11 +35,13 @@ void evaluate_results(std::vector<int> tests_avg_speed, int test_repetitions)
 
   for(int n: tests_avg_speed)
     sum += n;
+    ROS_INFO_STREAM("The n-th element of vector test_avg_speeds: " << n);
 
+  ROS_INFO("----------");
   trials_mean = sum / test_repetitions;
 
-  ROS_INFO_STREAM("Time it took to poll each register a 1000 times, with test_repetitions of: " << test_repetitions << " times: " << trials_mean);
-  ROS_INFO_STREAM("In Hz that is: " << 1000/(trials_mean/1000) << "Hz");
+  ROS_INFO_STREAM("Mean of tests whicch poll each register a 1000 times, with test_repetitions of: " << test_repetitions << " times, is: " << trials_mean);
+  ROS_INFO_STREAM("In Hz that approximates to: " << 1000/(trials_mean/1000) << "Hz");
   ROS_INFO("----------");
 
   for(int n: tests_avg_speed)
@@ -146,4 +147,3 @@ int main(int argc, char **argv)
     // loop_rate.sleep();
   }
   return 0;
-}
