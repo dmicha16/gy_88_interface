@@ -2,6 +2,7 @@
 #include "ros/ros.h"
 #include <iostream>
 #include "imu_interface/Gy88Data.h"
+#include <fstream>
 
 uulong_t get_millis_since_epoch()
 {
@@ -84,6 +85,22 @@ void test_polling_speed(int test_repetitions, Gy88Interface imu)
   evaluate_results(tests_avg_speed, test_repetitions);
 }
 
+void record_imu(int minutes, Gy88Interface imu)
+{
+  std::ofstream recording_file;
+  ChipMPU6050 chip_mpu6050;
+  ChipHMC5883L chip_hmc5883l;
+  recording_file.open ("example.csv");
+
+  recording_file << imu.
+  recording_file << "c,s,v,\n";
+  recording_file << "1,2,3.456\n";
+  recording_file << "semi;colon";
+  recording_file.close();
+  return 0;
+
+}
+
 int main(int argc, char **argv)
 {
 
@@ -110,10 +127,10 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;
   ros::Publisher publisher = n.advertise<imu_interface::Gy88Data>("gy88_data", 1000);
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(100);
 
-  test_polling_speed(10, imu);
-  return 0;
+  // test_polling_speed(10, imu);
+  // return 0;
 
   imu_interface::Gy88Data gy88_data;
 
