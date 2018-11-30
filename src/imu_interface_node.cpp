@@ -85,6 +85,14 @@ void test_polling_speed(int test_repetitions, Gy88Interface imu)
   evaluate_results(tests_avg_speed, test_repetitions);
 }
 
+void record_data(ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l)
+{
+  std::ofstream recording_file;
+  recording_file.open ("mpu6050_recording.csv");
+  recording_file << chip_mpu6050.si_accel_x << "," << chip_mpu6050.si_accel_y << "," << chip_mpu6050.si_accel_z << "," << chip_mpu6050.gyro_x << "," << chip_mpu6050.gyro_y << "," << chip_mpu6050.gyro_z << ",\n";
+  recording_file.close();
+}
+
 int main(int argc, char **argv)
 {
 
@@ -118,6 +126,11 @@ int main(int argc, char **argv)
 
   imu_interface::Gy88Data gy88_data;
 
+  ChipMPU6050 chip_mpu6050;
+  ChipHMC5883L chip_hmc5883l;
+
+  double counter = 0;
+
   while(ros::ok())
   {
     ROS_INFO_STREAM_ONCE("Started advertising on topic gy_88_data..");
@@ -125,29 +138,37 @@ int main(int argc, char **argv)
     imu.read_bus(MPU6050_CHIP);
     imu.read_bus(HMC5883L_CHIP);
 
-    ChipMPU6050 chip_mpu6050 = imu.get_MPU5060_data();
-    ChipHMC5883L chip_hmc5883l = imu.get_HMC5883L_data();
+    chip_mpu6050 = imu.get_MPU5060_data();
+    chip_hmc5883l = imu.get_HMC5883L_data();
 
-    gy88_data.si_accel_x = chip_mpu6050.si_accel_x;
-    gy88_data.si_accel_y = chip_mpu6050.si_accel_y;
-    gy88_data.si_accel_z = chip_mpu6050.si_accel_z;
+    // gy88_data.si_accel_x = chip_mpu6050.si_accel_x;
+    // gy88_data.si_accel_y = chip_mpu6050.si_accel_y;
+    // gy88_data.si_accel_z = chip_mpu6050.si_accel_z;
 
-    gy88_data.gyro_x = chip_mpu6050.gyro_x;
-    gy88_data.gyro_y = chip_mpu6050.gyro_y;
-    gy88_data.gyro_z = chip_mpu6050.gyro_z;
+    // gy88_data.gyro_x = chip_mpu6050.gyro_x;
+    // gy88_data.gyro_y = chip_mpu6050.gyro_y;
+    // gy88_data.gyro_z = chip_mpu6050.gyro_z;
 
-    gy88_data.compass_x = chip_hmc5883l.compass_x;
-    gy88_data.compass_y = chip_hmc5883l.compass_y;
-    gy88_data.compass_z = chip_hmc5883l.compass_z;
-    gy88_data.compass_angle = chip_hmc5883l.compass_angle;
+    // gy88_data.compass_x = chip_hmc5883l.compass_x;
+    // gy88_data.compass_y = chip_hmc5883l.compass_y;
+    // gy88_data.compass_z = chip_hmc5883l.compass_z;
+    // gy88_data.compass_angle = chip_hmc5883l.compass_angle;
 
-    gy88_data.timestamp = imu.get_read_timestamp();
+    // gy88_data.timestamp = imu.get_read_timestamp();
 
-    publisher.publish(gy88_data);
+    // publisher.publish(gy88_data);
 
-    print(chip_mpu6050, chip_hmc5883l);
+    record_data(chip_mpu6050, chip_hmc5883l);
+
+    // print(chip_mpu6050, chip_hmc5883l);
     ros::spinOnce();
-    // loop_rate.sleep();
+    loop_rate.sleep();
+
+    if(counter == 30000)
+      break;
+
+    counter++;
   }
+  ROS_INFO_STREAM_ONCE("Finished recording, quitting..");
   return 0;
 }
