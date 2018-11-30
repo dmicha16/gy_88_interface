@@ -88,8 +88,8 @@ void test_polling_speed(int test_repetitions, Gy88Interface imu)
 void record_data(ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l)
 {
   std::ofstream recording_file;
-  recording_file.open ("mpu6050_recording.csv");
-  recording_file << chip_mpu6050.si_accel_x << "," << chip_mpu6050.si_accel_y << "," << chip_mpu6050.si_accel_z << "," << chip_mpu6050.gyro_x << "," << chip_mpu6050.gyro_y << "," << chip_mpu6050.gyro_z << ",\n";
+  recording_file.open ("/home/ubuntu/catkin_ws/src/gy_88_interface/mpu6050_recording.csv", std::ios_base::app);
+  recording_file << chip_mpu6050.accel_x << "," << chip_mpu6050.accel_y << "," << chip_mpu6050.accel_z << "," << chip_mpu6050.gyro_x << "," << chip_mpu6050.gyro_y << "," << chip_mpu6050.gyro_z << ",\n";
   recording_file.close();
 }
 
