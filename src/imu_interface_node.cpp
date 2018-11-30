@@ -85,11 +85,11 @@ void test_polling_speed(int test_repetitions, Gy88Interface imu)
   evaluate_results(tests_avg_speed, test_repetitions);
 }
 
-void record_data(ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l)
+void record_data(uulong_t timestamp, ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l)
 {
   std::ofstream recording_file;
-  recording_file.open ("/home/ubuntu/catkin_ws/src/gy_88_interface/mpu6050_recording.csv", std::ios_base::app);
-  recording_file << chip_mpu6050.accel_x << "," << chip_mpu6050.accel_y << "," << chip_mpu6050.accel_z << "," << chip_mpu6050.gyro_x << "," << chip_mpu6050.gyro_y << "," << chip_mpu6050.gyro_z << ",\n";
+  recording_file.open ("/home/ubuntu/catkin_ws/src/gy_88_interface/mpu6050_recording_10hz.csv", std::ios_base::app);
+  recording_file << timestamp << "," << chip_mpu6050.accel_x << "," << chip_mpu6050.accel_y << "," << chip_mpu6050.accel_z << "," << chip_mpu6050.gyro_x << "," << chip_mpu6050.gyro_y << "," << chip_mpu6050.gyro_z << ",\n";
   recording_file.close();
 }
 
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "imu_interface_node");
   ros::NodeHandle n;
   ros::Publisher publisher = n.advertise<imu_interface::Gy88Data>("gy88_data", 1000);
-  ros::Rate loop_rate(100);
+  ros::Rate loop_rate(10);
 
   // test_polling_speed(10, imu);
   // return 0;
@@ -158,7 +158,9 @@ int main(int argc, char **argv)
 
     // publisher.publish(gy88_data);
 
-    record_data(chip_mpu6050, chip_hmc5883l);
+    uulong_t timestamp = imu.get_read_timestamp();
+
+    record_data(timestamp, chip_mpu6050, chip_hmc5883l);
 
     // print(chip_mpu6050, chip_hmc5883l);
     ros::spinOnce();
