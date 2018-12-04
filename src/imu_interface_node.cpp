@@ -10,7 +10,8 @@ int main(int argc, char **argv)
   if (argc < 2)
     ROS_ERROR("No loop-rate passed, defaulting to 100hz.");
     loop_rate_freq = 100;
-  loop_rate_freq = argc;
+
+  loop_rate_freq = atoi(argv[1]);
 
   ROS_INFO("Constructing IMU class..");
   Gy88Interface imu;
