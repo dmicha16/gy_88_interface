@@ -80,6 +80,25 @@ void record_data(uulong_t timestamp, ChipMPU6050 chip_mpu6050, ChipHMC5883L chip
 int main(int argc, char **argv)
 {
 
+  if (argc < 2)
+  {
+    ROS_ERROR("No testing is selected, quitting.")
+    return 0;
+  }
+
+  int num_polllings;
+  int recording_freq;
+
+  if(argv[1] == "polling")
+    num_polllings = atoi(argv[1]);
+  else if(argv[1] == "record")
+    recording_freq = atoi(argv[1]);
+  else
+  {
+    ROS_ERROR("No testing is selected, quitting.")
+    return 0;
+  }
+
   ROS_INFO("Constructing IMU class..");
   Gy88Interface imu;
   ROS_INFO("Successfully constructed IMU class..");
@@ -100,35 +119,36 @@ int main(int argc, char **argv)
   if(!imu.set_HMC5883L_sample_rate(HMC5883L_SAMPLE_RATE_75HZ))
     ROS_ERROR("Could not set compass sampling rate.");
 
-  ros::init(argc, argv, "imu_interface_node");
-  ros::NodeHandle n;
-  ros::Publisher publisher = n.advertise<imu_interface::Gy88Data>("gy88_data", 1000);
-  ros::Rate loop_rate(10);
+  ros::init(argc, argv, "imu_interface_testing");
+  ros::Rate loop_rate(recording_freq);
 
-  // test_polling_speed(10, imu);
-  // return 0;
-
-  imu_interface::Gy88Data gy88_data;
-
-  ChipMPU6050 chip_mpu6050;
-  ChipHMC5883L chip_hmc5883l;
-
-  while(ros::ok())
+  if(argv[1] == "polling")
   {
-    ROS_INFO_STREAM_ONCE("Started advertising on topic gy_88_data..");
+    test_polling_speed(num_polllings, imu);
+    ROS_INFO("Polling test done, quitting.");
+    return 0;
+  }
+  else if(argv[1] == "record")
+  {
+    ChipMPU6050 chip_mpu6050;
+    ChipHMC5883L chip_hmc5883l;
 
-    imu.read_bus(MPU6050_CHIP);
-    imu.read_bus(HMC5883L_CHIP);
+    while(ros::ok())
+    {
+      ROS_INFO_STREAM_ONCE("Started advertising on topic gy_88_data..");
 
-    chip_mpu6050 = imu.get_MPU5060_data();
-    chip_hmc5883l = imu.get_HMC5883L_data();
+      imu.read_bus(MPU6050_CHIP);
+      imu.read_bus(HMC5883L_CHIP);
 
-    uulong_t timestamp = imu.get_read_timestamp();
+      chip_mpu6050 = imu.get_MPU5060_data();
+      chip_hmc5883l = imu.get_HMC5883L_data();
 
-    record_data(timestamp, chip_mpu6050, chip_hmc5883l);
-    ros::spinOnce();
-    loop_rate.sleep();
+      uulong_t timestamp = imu.get_read_timestamp();
 
+      record_data(timestamp, chip_mpu6050, chip_hmc5883l);
+      ros::spinOnce();
+      loop_rate.sleep();
+    }
   }
   return 0;
 }
