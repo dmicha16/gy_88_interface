@@ -138,7 +138,7 @@ add_library(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
-#add_executable(imu_interface_testing src/imu_interface_testing.cpp)
+add_executable(imu_interface_testing src/imu_interface_testing.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,7 +149,7 @@ add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#add_dependencies(imu_interface_testing ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(imu_interface_testing ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
@@ -162,15 +162,15 @@ target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
 )
 
-#target_link_libraries(imu_interface_testing
-#  gy_88_lib
-#  wiringPi
-#  pthread
-#  m
-#  rt
-#  crypt
-#  ${catkin_LIBRARIES}
-#)
+target_link_libraries(imu_interface_testing
+  gy_88_lib
+  wiringPi
+  pthread
+  m
+  rt
+  crypt
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

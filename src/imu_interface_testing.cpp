@@ -3,6 +3,7 @@
 #include <iostream>
 #include "imu_interface/Gy88Data.h"
 #include <fstream>
+#include <string.h>
 
 uulong_t get_millis_since_epoch()
 {
@@ -27,7 +28,7 @@ void evaluate_results(std::vector<int> tests_avg_speed, int test_repetitions)
   ROS_INFO("----------");
   trials_mean = sum / test_repetitions;
 
-  ROS_INFO_STREAM("Mean of tests whicch poll each register a 1000 times, with test_repetitions of: " << test_repetitions << " times, is: " << trials_mean);
+  ROS_INFO_STREAM("Mean of tests which poll each register a 1000 times, with test_repetitions of: " << test_repetitions << " times, is: " << trials_mean);
   ROS_INFO_STREAM("In Hz that approximates to: " << 1000/(trials_mean/1000) << "Hz");
   ROS_INFO("----------");
 
@@ -77,25 +78,28 @@ void record_data(uulong_t timestamp, ChipMPU6050 chip_mpu6050, ChipHMC5883L chip
   recording_file.close();
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-
-  if (argc < 2)
+  if (argc < 3)
   {
-    ROS_ERROR("No testing is selected, quitting.")
+    ROS_ERROR("No testing is selected, quitting.");
     return 0;
   }
 
   int num_polllings;
   int recording_freq;
 
-  if(argv[1] == "polling")
-    num_polllings = atoi(argv[1]);
-  else if(argv[1] == "record")
-    recording_freq = atoi(argv[1]);
+  if(strcmp(argv[1], "polling") == 0)
+  {
+    num_polllings = atoi(argv[2]);
+  }
+  else if(strcmp(argv[1], "record") == 0)
+  {
+    recording_freq = atoi(argv[2]);
+  }
   else
   {
-    ROS_ERROR("No testing is selected, quitting.")
+    ROS_ERROR("No testing is selected, quitting.");
     return 0;
   }
 
@@ -120,22 +124,24 @@ int main(int argc, char **argv)
     ROS_ERROR("Could not set compass sampling rate.");
 
   ros::init(argc, argv, "imu_interface_testing");
+  ros::NodeHandle n;
   ros::Rate loop_rate(recording_freq);
 
-  if(argv[1] == "polling")
+  if(strcmp(argv[1], "polling") == 0)
   {
+    ROS_INFO("Began polling test!");
     test_polling_speed(num_polllings, imu);
     ROS_INFO("Polling test done, quitting.");
     return 0;
   }
-  else if(argv[1] == "record")
+  else if(strcmp(argv[1], "record") == 0)
   {
     ChipMPU6050 chip_mpu6050;
     ChipHMC5883L chip_hmc5883l;
 
     while(ros::ok())
     {
-      ROS_INFO_STREAM_ONCE("Started advertising on topic gy_88_data..");
+      ROS_INFO_STREAM_ONCE("Started recording the data!");
 
       imu.read_bus(MPU6050_CHIP);
       imu.read_bus(HMC5883L_CHIP);
