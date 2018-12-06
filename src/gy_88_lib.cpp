@@ -229,8 +229,12 @@ void Gy88Interface::calculate_si_accel_()
 float Gy88Interface::calculate_compass_angle_()
 {
   float angle;
+
+  chip_hmc5883l_.compass_x = (chip_hmc5883l_.compass_x - HMC5883L_X_OFFSET) * HMC5883L_SCALE;
+  chip_hmc5883l_.compass_y = (chip_hmc5883l_.compass_y - HMC5883L_Y_OFFSET) * HMC5883L_SCALE;
+
   angle = atan2(chip_hmc5883l_.compass_y, chip_hmc5883l_.compass_x) \
-   * (180 / PI) + 180;
+   * (180 / PI);
 
   return angle;
 }

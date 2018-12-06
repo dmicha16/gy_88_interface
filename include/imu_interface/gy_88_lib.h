@@ -82,6 +82,10 @@
 #define HMC5883L_REG_ID_B           0x0b
 #define HMC5883L_REG_ID_C           0x0c
 
+#define HMC5883L_SCALE              0.92
+#define HMC5883L_Y_OFFSET           1
+#define HMC5883L_X_OFFSET           1
+
 #define HMC5883L_MODE_CONTINUOUS    0x00
 #define HMC5883L_MODE_SINGLE        0x01
 
