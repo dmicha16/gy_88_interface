@@ -172,6 +172,7 @@ class Gy88Interface
     void set_millis_since_epoch_();
     void set_MPU6050_accel_scale_range_(int range);
     void set_MPU6050_gyro_scale_range_(int range);
+    bool set_HMC5883L_scale_range_(int range);
 
     void read_MPU6059_accel_();
     void read_MPU6059_gyro_();

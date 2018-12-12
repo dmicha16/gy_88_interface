@@ -32,7 +32,8 @@ bool Gy88Interface::connect_to_HMC5883L()
 
   wiringPiI2CWriteReg16(HMC5883L_fd_, HMC5883L_REG_MODE, HMC5883L_MODE_CONTINUOUS);
 
-  return true;
+  return set_HMC5883L_scale_range_(16);
+  // return true;
 }
 
 int Gy88Interface::set_MPU6050_accel_range(int range)
@@ -150,6 +151,18 @@ void Gy88Interface::set_MPU6050_gyro_scale_range_(int range)
       gyro_scale_range_ = MPU6050_G_SCALE_2000;
       break;
   }
+}
+
+bool Gy88Interface::set_HMC5883L_scale_range_(int range)
+{
+
+  wiringPiI2CWriteReg8(HMC5883L_fd_, HCM5883L_REG_CONFIG_B, range);
+  int set_range = wiringPiI2CReadReg8(HMC5883L_fd_, HCM5883L_REG_CONFIG_B);
+
+  if(set_range != range)
+    return false;
+
+  return true;
 }
 
 void Gy88Interface::read_MPU6059_accel_()
