@@ -70,11 +70,18 @@ void test_polling_speed(int test_repetitions, Gy88Interface imu)
   evaluate_results(tests_avg_speed, test_repetitions);
 }
 
-void record_data(uulong_t timestamp, ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l)
+void record_data(uulong_t timestamp, ChipMPU6050 chip_mpu6050, ChipHMC5883L chip_hmc5883l, int recording_freq,
+     std::string file_name)
 {
   std::ofstream recording_file;
-  recording_file.open ("/home/ubuntu/catkin_ws/src/gy_88_interface/mpu6050_recording_10hz.csv", std::ios_base::app);
-  recording_file << timestamp << "," << chip_mpu6050.accel_x << "," << chip_mpu6050.accel_y << "," << chip_mpu6050.accel_z << "," << chip_mpu6050.gyro_x << "," << chip_mpu6050.gyro_y << "," << chip_mpu6050.gyro_z << ",\n";
+  recording_file.open (file_name, std::ios_base::app);
+  recording_file << timestamp <<
+             "," << chip_mpu6050.accel_x <<
+             "," << chip_mpu6050.accel_y <<
+             "," << chip_mpu6050.accel_z <<
+             "," << chip_mpu6050.gyro_x <<
+             "," << chip_mpu6050.gyro_y <<
+             "," << chip_mpu6050.gyro_z << ",\n";
   recording_file.close();
 }
 
@@ -82,16 +89,16 @@ int main(int argc, char *argv[])
 {
   if (argc < 3)
   {
-    ROS_ERROR("No testing is selected, quitting.");
+    ROS_ERROR("No testing is selected, quitting. Try: <test_type> <num_polls/recording_freq>.");
     return 0;
   }
 
-  int num_polllings;
+  int num_pollings;
   int recording_freq;
 
-  if(strcmp(argv[1], "polling") == 0)
+  if(strcmp(argv[1], "poll") == 0)
   {
-    num_polllings = atoi(argv[2]);
+    num_pollings = atoi(argv[2]);
   }
   else if(strcmp(argv[1], "record") == 0)
   {
@@ -108,12 +115,18 @@ int main(int argc, char *argv[])
   ROS_INFO("Successfully constructed IMU class..");
 
   if(!imu.connect_to_MPU6050())
-    ROS_ERROR("Couldn't connect to MPU650's I2C bus!");
+  {
+    ROS_ERROR("Couldn't connect to MPU650's I2C bus, quitting.");
+    return 0;
+  }
   else
     ROS_INFO("Connected to MPU650's I2C bus!");
 
   if(!imu.connect_to_HMC5883L())
-    ROS_ERROR("Couldn't connect to HMC5883L's to I2C bus!");
+  {
+    ROS_ERROR("Couldn't connect to HMC5883L's to I2C bus, quitting.");
+    return 0;
+  }
   else
     ROS_INFO("Connected to HMC5883L's I2C bus!");
 
@@ -123,14 +136,14 @@ int main(int argc, char *argv[])
   if(!imu.set_HMC5883L_sample_rate(HMC5883L_SAMPLE_RATE_75HZ))
     ROS_ERROR("Could not set compass sampling rate.");
 
-  ros::init(argc, argv, "imu_interface_testing");
+  ros::init(argc, argv, "gy_88_interface_node_testing");
   ros::NodeHandle n;
   ros::Rate loop_rate(recording_freq);
 
-  if(strcmp(argv[1], "polling") == 0)
+  if(strcmp(argv[1], "poll") == 0)
   {
     ROS_INFO("Began polling test!");
-    test_polling_speed(num_polllings, imu);
+    test_polling_speed(num_pollings, imu);
     ROS_INFO("Polling test done, quitting.");
     return 0;
   }
@@ -138,6 +151,11 @@ int main(int argc, char *argv[])
   {
     ChipMPU6050 chip_mpu6050;
     ChipHMC5883L chip_hmc5883l;
+    
+    std::string file_name = "/home/ubuntu/catkin_ws/src/gy_88_interface/mpu6050_recording_" \
+       + std::to_string(recording_freq) \
+       + "_" \
+       + std::to_string(get_millis_since_epoch()) + ".csv";
 
     while(ros::ok())
     {
@@ -151,7 +169,7 @@ int main(int argc, char *argv[])
 
       uulong_t timestamp = imu.get_read_timestamp();
 
-      record_data(timestamp, chip_mpu6050, chip_hmc5883l);
+      record_data(timestamp, chip_mpu6050, chip_hmc5883l, recording_freq, file_name);
       ros::spinOnce();
       loop_rate.sleep();
     }

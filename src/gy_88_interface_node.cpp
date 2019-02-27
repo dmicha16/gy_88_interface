@@ -33,12 +33,12 @@ int main(int argc, char **argv)
   if(!imu.set_HMC5883L_sample_rate(HMC5883L_SAMPLE_RATE_75HZ))
     ROS_ERROR("Could not set compass sampling rate, running on default.");
 
-  ros::init(argc, argv, "imu_interface_node");
+  ros::init(argc, argv, "gy_88_interface_node");
   ros::NodeHandle n;
-  ros::Publisher publisher = n.advertise<imu_interface::Gy88Data>("gy88_data", 1000);
+  ros::Publisher publisher = n.advertise<imu_interface::Gy88Data>("gy_88_data", 1000);
   ros::Rate loop_rate(loop_rate_freq);
 
-  imu_interface::Gy88Data gy88_data;
+  imu_interface::Gy88Data gy_88_data;
 
   ChipMPU6050 chip_mpu6050;
   ChipHMC5883L chip_hmc5883l;
@@ -53,26 +53,26 @@ int main(int argc, char **argv)
     chip_mpu6050 = imu.get_MPU5060_data();
     chip_hmc5883l = imu.get_HMC5883L_data();
 
-    gy88_data.accel_x = chip_mpu6050.accel_x;
-    gy88_data.accel_y = chip_mpu6050.accel_y;
-    gy88_data.accel_z = chip_mpu6050.accel_z;
+    gy_88_data.accel_x = chip_mpu6050.accel_x;
+    gy_88_data.accel_y = chip_mpu6050.accel_y;
+    gy_88_data.accel_z = chip_mpu6050.accel_z;
 
-    gy88_data.si_accel_x = chip_mpu6050.si_accel_x;
-    gy88_data.si_accel_y = chip_mpu6050.si_accel_y;
-    gy88_data.si_accel_z = chip_mpu6050.si_accel_z;
+    gy_88_data.si_accel_x = chip_mpu6050.si_accel_x;
+    gy_88_data.si_accel_y = chip_mpu6050.si_accel_y;
+    gy_88_data.si_accel_z = chip_mpu6050.si_accel_z;
 
-    gy88_data.gyro_x = chip_mpu6050.gyro_x;
-    gy88_data.gyro_y = chip_mpu6050.gyro_y;
-    gy88_data.gyro_z = chip_mpu6050.gyro_z;
+    gy_88_data.gyro_x = chip_mpu6050.gyro_x;
+    gy_88_data.gyro_y = chip_mpu6050.gyro_y;
+    gy_88_data.gyro_z = chip_mpu6050.gyro_z;
 
-    gy88_data.compass_x = chip_hmc5883l.compass_x;
-    gy88_data.compass_y = chip_hmc5883l.compass_y;
-    gy88_data.compass_z = chip_hmc5883l.compass_z;
-    gy88_data.compass_angle = chip_hmc5883l.compass_angle;
+    gy_88_data.compass_x = chip_hmc5883l.compass_x;
+    gy_88_data.compass_y = chip_hmc5883l.compass_y;
+    gy_88_data.compass_z = chip_hmc5883l.compass_z;
+    gy_88_data.compass_angle = chip_hmc5883l.compass_angle;
 
-    gy88_data.timestamp = imu.get_read_timestamp();
+    gy_88_data.timestamp = imu.get_read_timestamp();
 
-    publisher.publish(gy88_data);
+    publisher.publish(gy_88_data);
 
     ros::spinOnce();
     loop_rate.sleep();
