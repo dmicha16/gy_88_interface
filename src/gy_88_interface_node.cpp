@@ -1,7 +1,7 @@
-#include "imu_interface/gy_88_lib.h"
+#include "gy_88_interface/gy_88_lib.h"
 #include "ros/ros.h"
 #include <iostream>
-#include "imu_interface/Gy88Data.h"
+#include "gy_88_interface/Gy88Data.h"
 #include <fstream>
 
 int main(int argc, char **argv)
@@ -35,10 +35,10 @@ int main(int argc, char **argv)
 
   ros::init(argc, argv, "gy_88_interface_node");
   ros::NodeHandle n;
-  ros::Publisher publisher = n.advertise<imu_interface::Gy88Data>("gy_88_data", 1000);
+  ros::Publisher publisher = n.advertise<gy_88_interface::Gy88Data>("gy_88_data", 1000);
   ros::Rate loop_rate(loop_rate_freq);
 
-  imu_interface::Gy88Data gy_88_data;
+  gy_88_interface::Gy88Data gy_88_data;
 
   ChipMPU6050 chip_mpu6050;
   ChipHMC5883L chip_hmc5883l;

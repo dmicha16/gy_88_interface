@@ -211,7 +211,7 @@ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_imu_interface.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_gy_88_interface.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
